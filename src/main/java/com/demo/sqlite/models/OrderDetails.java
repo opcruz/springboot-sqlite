@@ -17,9 +17,9 @@ import lombok.NoArgsConstructor;
 public class OrderDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    private Integer order_id;
-    private Integer product_code;
-    private Integer quantity;
-    private Double price;
+    private int id;
+    private int order_id;
+    private int product_code;
+    private int quantity;
+    private double price;
 }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 
-@Entity(name = "\"order\"")
+@Entity(name = "orders")
 @Data
 @Builder
 @NoArgsConstructor
@@ -19,11 +19,11 @@ import java.sql.Timestamp;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    private Integer client_id;
+    private int id;
+    private int client_id;
     private String status;
     private String payment_method;
-    private Double total;
+    private double total;
     private Timestamp created_at;
 
 }

@@ -11,7 +11,6 @@ public class ShoppingCartResultDTO {
 
     private Integer clientId;
     private Double total;
-
     private Iterable<ProductCartDTO> products;
 
 }

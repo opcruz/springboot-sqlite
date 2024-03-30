@@ -7,8 +7,8 @@ import com.demo.sqlite.models.Order;
 import com.demo.sqlite.models.ShoppingCart;
 import com.demo.sqlite.repositories.ShoppingCartRepository;
 import com.demo.sqlite.repositories.StockRepository;
+import com.demo.sqlite.security.UserAuthenticateInfo;
 import com.demo.sqlite.services.OrderService;
-import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,6 @@ import java.util.Optional;
 public class CartController {
     private final ShoppingCartRepository shoppingCartRepository;
     private final StockRepository stockRepository;
-
     private final OrderService orderService;
 
 
@@ -37,10 +36,10 @@ public class CartController {
         this.stockRepository = stockRepository;
     }
 
-    @GetMapping(path = "")
+    @GetMapping
     @Operation(summary = "List cart products", security = @SecurityRequirement(name = "bearerAuth"))
     public @ResponseBody ShoppingCartResultDTO getShoppingCart(Authentication auth) {
-        Integer clientId = ((Claims) auth.getDetails()).get("userId", Integer.class);
+        int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
         Iterable<ShoppingCartJoined> shoppingCarts = shoppingCartRepository.filterByClientId(clientId);
 
         ShoppingCartResultDTO.ShoppingCartResultDTOBuilder builder = ShoppingCartResultDTO.builder();
@@ -68,9 +67,9 @@ public class CartController {
     @Operation(summary = "Delete cart product", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<Void> deleteStock(@RequestParam Integer cartId,
                                             Authentication auth) {
-        Integer clientId = ((Claims) auth.getDetails()).get("userId", Integer.class);
+        int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
         try {
-            Integer integer = shoppingCartRepository.deleteByIdAndClientId(cartId, clientId);
+            shoppingCartRepository.deleteByIdAndClientId(cartId, clientId);
             return ResponseEntity.ok().build();
         } catch (EmptyResultDataAccessException ex) {
             return ResponseEntity.notFound().build();
@@ -82,7 +81,7 @@ public class CartController {
     public ResponseEntity<ShoppingCart> addCartProduct(@RequestParam Integer productCode,
                                                        @RequestParam Integer quantity,
                                                        Authentication auth) {
-        Integer clientId = ((Claims) auth.getDetails()).get("userId", Integer.class);
+        int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
 
         ShoppingCart shoppingCartProduct = new ShoppingCart();
         shoppingCartProduct.setProduct_code(productCode);
@@ -107,9 +106,8 @@ public class CartController {
     @Operation(summary = "Buy cart", security = @SecurityRequirement(name = "bearerAuth"))
     public @ResponseBody Order buyCart(@RequestParam String payment_method,
                                        Authentication auth) {
-        Integer clientId = ((Claims) auth.getDetails()).get("userId", Integer.class);
-        Order order = orderService.generateOrder(clientId, payment_method);
-        return order;
+        int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
+        return orderService.generateOrder(clientId, payment_method);
     }
 
 }

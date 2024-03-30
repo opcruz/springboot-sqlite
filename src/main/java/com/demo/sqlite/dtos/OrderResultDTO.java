@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -17,6 +18,6 @@ public class OrderResultDTO {
     private Double total;
     private Timestamp createdAt;
 
-    private Iterable<ProductOrderDTO> products;
+    private List<ProductOrderDTO> products;
 
 }

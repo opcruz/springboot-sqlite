@@ -4,7 +4,8 @@ import com.demo.sqlite.dtos.LoginRequestDTO;
 import com.demo.sqlite.dtos.LoginResponseDTO;
 import com.demo.sqlite.repositories.ClientRepository;
 import com.demo.sqlite.repositories.EmployeeRepository;
-import com.demo.sqlite.utils.JWTCoder;
+import com.demo.sqlite.security.JWTCoder;
+import com.demo.sqlite.utils.Roles;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.xml.bind.DatatypeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,11 +46,13 @@ public class UserController {
         md.update(body.getPassword().getBytes());
         String passwordHash = DatatypeConverter
                 .printHexBinary(md.digest()).toUpperCase();
-        return employeeRepository.loginEmployee(body.getEmail(), passwordHash).map(employee -> {
-            String token = getJWTToken(body.getEmail(), "employee", employee.getId());
-            LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
-            loginResponseDTO.setEmail(body.getEmail());
-            loginResponseDTO.setToken(token);
+        return employeeRepository.findEmployeeByEmailAndPassword(body.getEmail(), passwordHash).map(employee -> {
+            String token = getJWTToken(body.getEmail(), Roles.EMPLOYEE.getRoleWithPrefix(), employee.getId());
+            LoginResponseDTO loginResponseDTO =
+                    LoginResponseDTO.builder()
+                            .email(body.getEmail())
+                            .token(token)
+                            .build();
 
             return ResponseEntity.ok().body(loginResponseDTO);
         }).orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
@@ -61,11 +64,13 @@ public class UserController {
         md.reset();
         md.update(body.getPassword().getBytes());
         String passwordHash = DatatypeConverter.printHexBinary(md.digest()).toUpperCase();
-        return clientRepository.loginClient(body.getEmail(), passwordHash).map(client -> {
-            String token = getJWTToken(body.getEmail(), "client", client.getId());
-            LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
-            loginResponseDTO.setEmail(body.getEmail());
-            loginResponseDTO.setToken(token);
+        return clientRepository.findClientByEmailAndPassword(body.getEmail(), passwordHash).map(client -> {
+            String token = getJWTToken(body.getEmail(), Roles.CLIENT.getRoleWithPrefix(), client.getId());
+            LoginResponseDTO loginResponseDTO =
+                    LoginResponseDTO.builder()
+                            .email(body.getEmail())
+                            .token(token)
+                            .build();
 
             return ResponseEntity.ok().body(loginResponseDTO);
         }).orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());

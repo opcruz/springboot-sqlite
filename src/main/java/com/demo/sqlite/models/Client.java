@@ -17,14 +17,14 @@ import lombok.NoArgsConstructor;
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
     private String name;
     private String surnames;
     private String direction;
-    private String province;
-    private String cp;
+    private String state;
+    private String postal_code;
     private String phone;
     private String email;
-    private String passwordhash;
+    private String password_hash;
 
 }

@@ -8,14 +8,16 @@ import lombok.Data;
 @Data
 public class ShoppingCartJoined {
 
-    private Integer id;
+    private int id;
 
     private Stock stock;
 
-    private Integer quantity;
+    private int quantity;
 
-    public ShoppingCartJoined(Integer id, Integer quantity,
-                              Integer code, String description, String color, String category, Double price, String status) {
+    public ShoppingCartJoined(int id, int quantity,
+                              Integer code, String description,
+                              int category, Double price,
+                              String status) {
 
         this.id = id;
         this.quantity = quantity;
@@ -23,8 +25,7 @@ public class ShoppingCartJoined {
                 Stock.builder()
                         .code(code)
                         .description(description)
-                        .color(color)
-                        .category(category)
+                        .category_id(category)
                         .price(price)
                         .status(status)
                         .build();

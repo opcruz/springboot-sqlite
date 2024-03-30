@@ -1,5 +1,6 @@
 package com.demo.sqlite.utils;
 
+import com.demo.sqlite.security.JWTCoder;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.Test;
 

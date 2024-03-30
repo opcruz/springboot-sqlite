@@ -11,7 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity(name = "stock") // This tells Hibernate to make a table out of this class
+@Entity(name = "stock")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
@@ -20,21 +20,19 @@ import lombok.NoArgsConstructor;
 public class Stock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer code;
+    private int code;
     private String description;
     @JsonIgnore
     private byte[] image;
-    private String color;
-    private String category;
-    private Integer quantity;
-    private Double price;
+    private int category_id;
+    private int quantity;
+    private double price;
     private String status;
-    private Integer created_by;
-    private Integer updated_by;
+    private int created_by;
+    private int updated_by;
     public Stock(Integer code,
                  String description,
-                 String color,
-                 String category,
+                 int category_id,
                  Integer quantity,
                  Double price,
                  String status,
@@ -42,8 +40,7 @@ public class Stock {
                  Integer updated_by) {
         this.code = code;
         this.description = description;
-        this.color = color;
-        this.category = category;
+        this.category_id = category_id;
         this.quantity = quantity;
         this.price = price;
         this.status = status;

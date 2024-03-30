@@ -2,7 +2,7 @@ package com.demo.sqlite.controllers;
 
 import com.demo.sqlite.models.Stock;
 import com.demo.sqlite.repositories.StockRepository;
-import io.jsonwebtoken.Claims;
+import com.demo.sqlite.security.UserAuthenticateInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -26,9 +27,9 @@ public class StockController {
     }
 
     @GetMapping(path = "/list")
-    @Operation(summary = "List products", security = @SecurityRequirement(name = "bearerAuth"))
-    public @ResponseBody Iterable<Stock> getAllStocks(@RequestParam(required = false) String searchPhrase, Authentication authentication) {
-        Iterable<Stock> result;
+    @Operation(summary = "List products")
+    public @ResponseBody List<Stock> getAllStocks(@RequestParam(required = false) String searchPhrase) {
+        List<Stock> result;
         if (searchPhrase == null || searchPhrase.isBlank()) {
             result = stockRepository.allWithoutImage();
         } else {
@@ -38,7 +39,7 @@ public class StockController {
     }
 
     @GetMapping(value = "/{code}/image", produces = MediaType.IMAGE_JPEG_VALUE)
-    @Operation(summary = "Return picture", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Return picture")
     public ResponseEntity<byte[]> getImage(@PathVariable int code) {
         Optional<byte[]> imageByCode = stockRepository.findImageByCode(code);
 
@@ -51,19 +52,17 @@ public class StockController {
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "Add stock product", security = @SecurityRequirement(name = "bearerAuth"))
     public @ResponseBody Stock createStock(@RequestPart String description,
-                                           @RequestPart(required = false) String color,
                                            @RequestPart String category,
                                            @RequestPart String price,
                                            @RequestPart String quantity,
                                            @RequestPart String status,
                                            @RequestPart(required = false) MultipartFile image,
                                            Authentication auth) {
-        Integer clientId = ((Claims) auth.getDetails()).get("userId", Integer.class);
+        int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
         Stock newStock =
                 Stock.builder()
                         .description(description)
-                        .color(color)
-                        .category(category)
+                        .category_id(Integer.parseInt(category))
                         .status(status)
                         .price(Double.parseDouble(price))
                         .quantity(Integer.parseInt(quantity))
@@ -85,25 +84,30 @@ public class StockController {
     @Operation(summary = "Update stock product", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<Stock> updateStock(@PathVariable int code,
                                              @RequestPart String description,
-                                             @RequestPart(required = false) String color,
-                                             @RequestPart String category,
+                                             @RequestPart int category,
                                              @RequestPart String price,
                                              @RequestPart String quantity,
                                              @RequestPart String status,
                                              @RequestPart(required = false) MultipartFile image,
                                              Authentication auth) {
-
-        Integer clientId = ((Claims) auth.getDetails()).get("userId", Integer.class);
-
+        int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
         return
                 stockRepository.findById(code).map(stock -> {
-                    stock.setCategory(category);
-                    stock.setColor(color);
+                    stock.setCategory_id(category);
                     stock.setPrice(Double.parseDouble(price));
                     stock.setDescription(description);
                     stock.setQuantity(Integer.parseInt(quantity));
                     stock.setStatus(status);
                     stock.setUpdated_by(clientId);
+
+                    if (image != null) {
+                        try {
+                            stock.setImage(image.getBytes());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
                     stockRepository.save(stock);
                     return stock;
                 }).map(result -> ResponseEntity.ok().body(result)
@@ -112,9 +116,10 @@ public class StockController {
     }
 
     @GetMapping(path = "/{code}")
-    @Operation(summary = "Get stock product", security = @SecurityRequirement(name = "bearerAuth"))
-    public @ResponseBody Optional<Stock> getStock(@PathVariable int code) {
-        return stockRepository.findById(code);
+    @Operation(summary = "Get stock product")
+    public @ResponseBody ResponseEntity<Stock> getStock(@PathVariable int code) {
+        return stockRepository.findById(code).map(result -> ResponseEntity.ok().body(result))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping(path = "/{code}")

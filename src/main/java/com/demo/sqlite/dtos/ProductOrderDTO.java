@@ -8,16 +8,15 @@ import lombok.Data;
 @Data
 public class ProductOrderDTO {
 
-    private Integer quantity;
-    private Double price;
+    private int quantity;
+    private double price;
     private Stock stock;
 
     public ProductOrderDTO(Integer quantity,
                            Double price,
                            Integer code,
                            String description,
-                           String color,
-                           String category,
+                           int category,
                            String status) {
         this.quantity = quantity;
         this.price = price;
@@ -25,8 +24,7 @@ public class ProductOrderDTO {
                 Stock.builder()
                         .code(code)
                         .description(description)
-                        .color(color)
-                        .category(category)
+                        .category_id(category)
                         .status(status)
                         .build();
     }

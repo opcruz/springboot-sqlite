@@ -15,7 +15,6 @@ import java.sql.Statement;
 @Component
 @Slf4j
 public class DatabaseInitializer {
-
     private final DataSource dataSource;
 
     public DatabaseInitializer(@Autowired DataSource dataSource) {

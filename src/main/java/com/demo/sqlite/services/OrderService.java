@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -73,7 +74,7 @@ public class OrderService {
     public Optional<OrderResultDTO> orderDetails(int clientId, int orderId) {
         Optional<Order> order = orderRepository.findByIdAndClientId(clientId, orderId);
         return order.map(value -> {
-            Iterable<ProductOrderDTO> products = orderDetailsRepository.findByOrderId(value.getId());
+            List<ProductOrderDTO> products = orderDetailsRepository.findByOrderId(value.getId());
             return OrderResultDTO.builder()
                     .id(value.getId())
                     .status(value.getStatus())
