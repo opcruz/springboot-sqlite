@@ -17,7 +17,6 @@ public class OrderResultDTO {
     private String paymentMethod;
     private Double total;
     private Timestamp createdAt;
-
     private List<ProductOrderDTO> products;
 
 }

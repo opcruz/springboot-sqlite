@@ -14,6 +14,6 @@ public interface OrderDetailsRepository extends CrudRepository<OrderDetails, Int
 
     @Query(value = "SELECT new com.demo.sqlite.dtos.ProductOrderDTO(u.quantity, u.price, s.code, s.description, s.category_id, s.status)" +
             " FROM order_details u JOIN stock s ON u.product_code = s.code WHERE u.order_id = :order_id")
-    List<ProductOrderDTO> findByOrderId(@Param("order_id") Integer clientId);
+    List<ProductOrderDTO> findByOrderId(@Param("order_id") Integer order_id);
 
 }

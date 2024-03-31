@@ -1,134 +1,165 @@
 package com.demo.sqlite.controllers;
 
+import com.demo.sqlite.dtos.StockResponseDTO;
+import com.demo.sqlite.exceptions.ValidationError;
 import com.demo.sqlite.models.Stock;
-import com.demo.sqlite.repositories.StockRepository;
 import com.demo.sqlite.security.UserAuthenticateInfo;
+import com.demo.sqlite.services.StockService;
+import com.demo.sqlite.utils.Try;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/stocks")
 public class StockController {
-    private final StockRepository stockRepository;
+    private final StockService stockService;
 
-    public StockController(@Autowired StockRepository stockRepository) {
-        this.stockRepository = stockRepository;
+    public StockController(@Autowired StockService stockService) {
+        this.stockService = stockService;
     }
 
     @GetMapping(path = "/list")
     @Operation(summary = "List products")
-    public @ResponseBody List<Stock> getAllStocks(@RequestParam(required = false) String searchPhrase) {
-        List<Stock> result;
-        if (searchPhrase == null || searchPhrase.isBlank()) {
-            result = stockRepository.allWithoutImage();
-        } else {
-            result = stockRepository.findByName(searchPhrase);
-        }
-        return result;
+    public @ResponseBody List<StockResponseDTO> getAllStocks(
+            @RequestParam(required = false) String searchPhrase,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pagination = PageRequest.of(page, size);
+        return stockService.getAllStocks(searchPhrase, pagination);
     }
 
     @GetMapping(value = "/{code}/image", produces = MediaType.IMAGE_JPEG_VALUE)
     @Operation(summary = "Return picture")
     public ResponseEntity<byte[]> getImage(@PathVariable int code) {
-        Optional<byte[]> imageByCode = stockRepository.findImageByCode(code);
-
-        return imageByCode.map(bytes -> ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG)
-                        .body(bytes))
+        return stockService.findImageByCode(code)
+                .map(bytes -> ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(bytes))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "Add stock product", security = @SecurityRequirement(name = "bearerAuth"))
-    public @ResponseBody Stock createStock(@RequestPart String description,
-                                           @RequestPart String category,
-                                           @RequestPart String price,
-                                           @RequestPart String quantity,
-                                           @RequestPart String status,
-                                           @RequestPart(required = false) MultipartFile image,
-                                           Authentication auth) {
+    public @ResponseBody ResponseEntity<Stock> createStock(
+            @Parameter(
+                    name = "description",
+                    description = "Descripción del producto")
+            @RequestPart String description,
+            @Parameter(
+                    name = "category",
+                    description = "Categoría del producto",
+                    schema = @Schema(type = "integer", format = "int32",
+                            allowableValues = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
+                            description = "1: Clothing and Accessories<br> 2: Consumer Electronics<br> 3: Beauty and Personal Care<br> 4: Home and Kitchen<br> 5: Books<br> 6: Toys and Games<br> 7: Sports and Outdoor Activities<br> 8: Health and Wellness<br> 9: Automotive<br> 10: Food and Beverages"
+                    ))
+            @RequestPart String category,
+            @Parameter(
+                    name = "price",
+                    description = "Precio del producto",
+                    schema = @Schema(type = "number", format = "double"))
+            @RequestPart String price,
+            @Parameter(
+                    name = "quantity",
+                    description = "Cantidad del producto",
+                    schema = @Schema(type = "integer", format = "int32"))
+            @RequestPart String quantity,
+            @Parameter(
+                    name = "status",
+                    description = "Estatus del producto",
+                    schema = @Schema(type = "string", allowableValues = {"active", "inactive", "out_of_stock", "deleted"}))
+            @RequestPart String status,
+            @Parameter(
+                    name = "image",
+                    description = "Imagen del producto")
+            @RequestPart(required = false) MultipartFile image,
+            Authentication auth) {
         int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
-        Stock newStock =
-                Stock.builder()
-                        .description(description)
-                        .category_id(Integer.parseInt(category))
-                        .status(status)
-                        .price(Double.parseDouble(price))
-                        .quantity(Integer.parseInt(quantity))
-                        .updated_by(clientId)
-                        .created_by(clientId)
-                        .build();
-
-        if (image != null) {
-            try {
-                newStock.setImage(image.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        Optional<byte[]> bytesImageOpt = Optional.ofNullable(image).flatMap(value -> Try.of(value::getBytes).toOptional());
+        try {
+            Stock stock = stockService.addProduct(description, Integer.parseInt(category), status,
+                    Double.parseDouble(price), Integer.parseInt(quantity), clientId, bytesImageOpt);
+            return ResponseEntity.ok().body(stock);
+        } catch (ValidationError e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        return stockRepository.save(newStock);
     }
 
     @PutMapping(path = "/{code}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "Update stock product", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<Stock> updateStock(@PathVariable int code,
-                                             @RequestPart String description,
-                                             @RequestPart int category,
-                                             @RequestPart String price,
-                                             @RequestPart String quantity,
-                                             @RequestPart String status,
-                                             @RequestPart(required = false) MultipartFile image,
-                                             Authentication auth) {
+    public ResponseEntity<StockResponseDTO> updateStock(
+            @PathVariable int code,
+            @Parameter(
+                    name = "description",
+                    description = "Descripción del producto")
+            @RequestPart String description,
+            @Parameter(
+                    name = "category",
+                    description = "Categoría del producto",
+                    schema = @Schema(type = "integer", format = "int32",
+                            allowableValues = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
+                            description = "1: Clothing and Accessories<br> 2: Consumer Electronics<br> 3: Beauty and Personal Care<br> 4: Home and Kitchen<br> 5: Books<br> 6: Toys and Games<br> 7: Sports and Outdoor Activities<br> 8: Health and Wellness<br> 9: Automotive<br> 10: Food and Beverages"
+                    ))
+            @RequestPart String category,
+            @Parameter(
+                    name = "price",
+                    description = "Precio del producto",
+                    schema = @Schema(type = "number", format = "double"))
+            @RequestPart String price,
+            @Parameter(
+                    name = "quantity",
+                    description = "Cantidad del producto",
+                    schema = @Schema(type = "integer", format = "int32"))
+            @RequestPart String quantity,
+            @Parameter(
+                    name = "status",
+                    description = "Estatus del producto",
+                    schema = @Schema(type = "string", allowableValues = {"active", "inactive", "out_of_stock", "deleted"}))
+            @RequestPart String status,
+            @Parameter(
+                    name = "image",
+                    description = "Imagen del producto")
+            @RequestPart(required = false) MultipartFile image,
+            Authentication auth) {
         int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
-        return
-                stockRepository.findById(code).map(stock -> {
-                    stock.setCategory_id(category);
-                    stock.setPrice(Double.parseDouble(price));
-                    stock.setDescription(description);
-                    stock.setQuantity(Integer.parseInt(quantity));
-                    stock.setStatus(status);
-                    stock.setUpdated_by(clientId);
+        Optional<byte[]> bytesImageOpt = Optional.ofNullable(image).flatMap(value -> Try.of(value::getBytes).toOptional());
 
-                    if (image != null) {
-                        try {
-                            stock.setImage(image.getBytes());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-
-                    stockRepository.save(stock);
-                    return stock;
-                }).map(result -> ResponseEntity.ok().body(result)
-                ).orElse(ResponseEntity.notFound().build());
-
+        try {
+            return stockService.updateProduct(
+                            code, description, Integer.parseInt(category), status,
+                            Double.parseDouble(price), Integer.parseInt(quantity), clientId, bytesImageOpt)
+                    .map(result -> ResponseEntity.ok().body(result))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (ValidationError e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @GetMapping(path = "/{code}")
     @Operation(summary = "Get stock product")
-    public @ResponseBody ResponseEntity<Stock> getStock(@PathVariable int code) {
-        return stockRepository.findById(code).map(result -> ResponseEntity.ok().body(result))
+    public @ResponseBody ResponseEntity<StockResponseDTO> getStock(@PathVariable int code) {
+        return stockService.findStockByCode(code).map(result -> ResponseEntity.ok().body(result))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping(path = "/{code}")
     @Operation(summary = "Delete stock product", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<Void> deleteStock(@PathVariable int code) {
-        try {
-            stockRepository.deleteById(code);
+        if (stockService.deleteProduct(code)) {
             return ResponseEntity.ok().build();
-        } catch (EmptyResultDataAccessException ex) {
+        } else {
             return ResponseEntity.notFound().build();
         }
     }

@@ -2,7 +2,6 @@ package com.demo.sqlite.controllers;
 
 import com.demo.sqlite.dtos.OrderResultDTO;
 import com.demo.sqlite.models.Order;
-import com.demo.sqlite.repositories.OrderRepository;
 import com.demo.sqlite.security.UserAuthenticateInfo;
 import com.demo.sqlite.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,13 +16,9 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/orders")
 public class OrderController {
-    private final OrderRepository orderRepository;
     private final OrderService orderService;
 
-
-    public OrderController(@Autowired OrderRepository orderRepository,
-                           @Autowired OrderService orderService) {
-        this.orderRepository = orderRepository;
+    public OrderController(@Autowired OrderService orderService) {
         this.orderService = orderService;
     }
 
@@ -31,7 +26,7 @@ public class OrderController {
     @Operation(summary = "List orders", security = @SecurityRequirement(name = "bearerAuth"))
     public @ResponseBody List<Order> getShoppingCart(Authentication auth) {
         int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
-        return orderRepository.findByClientId(clientId);
+        return orderService.findByClientId(clientId);
     }
 
     @GetMapping(path = "/{order_id}/details")

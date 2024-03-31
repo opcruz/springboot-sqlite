@@ -31,8 +31,7 @@ public class DatabaseInitializer {
             String line;
             StringBuilder script = new StringBuilder();
             while ((line = reader.readLine()) != null) {
-                script.append(line);
-                script.append("\n");
+                script.append(line).append("\n");
             }
             reader.close();
             // Ejecutar el script SQL

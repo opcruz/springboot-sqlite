@@ -2,82 +2,46 @@ package com.demo.sqlite.controllers;
 
 import com.demo.sqlite.dtos.LoginRequestDTO;
 import com.demo.sqlite.dtos.LoginResponseDTO;
-import com.demo.sqlite.repositories.ClientRepository;
-import com.demo.sqlite.repositories.EmployeeRepository;
-import com.demo.sqlite.security.JWTCoder;
-import com.demo.sqlite.utils.Roles;
+import com.demo.sqlite.exceptions.ValidationError;
+import com.demo.sqlite.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.xml.bind.DatatypeConverter;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.MessageDigest;
-import java.util.Collections;
-
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
+    private final UserService userService;
 
-    private static MessageDigest md;
-
-    static {
-        try {
-            md = MessageDigest.getInstance("SHA-256");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    public UserController(@Autowired UserService userService) {
+        this.userService = userService;
     }
 
-    private final EmployeeRepository employeeRepository;
-    private final ClientRepository clientRepository;
-
-    public UserController(@Autowired EmployeeRepository employeeRepository,
-                          @Autowired ClientRepository clientRepository) {
-        this.employeeRepository = employeeRepository;
-        this.clientRepository = clientRepository;
-    }
-
-    @PostMapping("/employee/login")
+    @PostMapping("/login")
     @Operation(summary = "Login employees")
-    public @ResponseBody ResponseEntity<LoginResponseDTO> employeeLogin(@RequestBody LoginRequestDTO body) {
-        md.reset();
-        md.update(body.getPassword().getBytes());
-        String passwordHash = DatatypeConverter
-                .printHexBinary(md.digest()).toUpperCase();
-        return employeeRepository.findEmployeeByEmailAndPassword(body.getEmail(), passwordHash).map(employee -> {
-            String token = getJWTToken(body.getEmail(), Roles.EMPLOYEE.getRoleWithPrefix(), employee.getId());
-            LoginResponseDTO loginResponseDTO =
-                    LoginResponseDTO.builder()
-                            .email(body.getEmail())
-                            .token(token)
-                            .build();
+    public @ResponseBody ResponseEntity<LoginResponseDTO> login(
+            @RequestBody LoginRequestDTO requestDTO,
+            @Parameter(
+                    name = "role",
+                    description = "Role of user",
+                    in = ParameterIn.QUERY,
+                    schema = @Schema(type = "string", allowableValues = {"client", "employee"}),
+                    example = "client")
+            @RequestParam(defaultValue = "client") String role
+    ) {
+        try {
+            return userService.login(requestDTO, role)
+                    .map(loginResponseDTO -> ResponseEntity.ok().body(loginResponseDTO))
+                    .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+        } catch (ValidationError e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
-            return ResponseEntity.ok().body(loginResponseDTO);
-        }).orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-    }
-
-    @PostMapping("/client/login")
-    @Operation(summary = "Login client")
-    public @ResponseBody ResponseEntity<LoginResponseDTO> clientLogin(@RequestBody LoginRequestDTO body) {
-        md.reset();
-        md.update(body.getPassword().getBytes());
-        String passwordHash = DatatypeConverter.printHexBinary(md.digest()).toUpperCase();
-        return clientRepository.findClientByEmailAndPassword(body.getEmail(), passwordHash).map(client -> {
-            String token = getJWTToken(body.getEmail(), Roles.CLIENT.getRoleWithPrefix(), client.getId());
-            LoginResponseDTO loginResponseDTO =
-                    LoginResponseDTO.builder()
-                            .email(body.getEmail())
-                            .token(token)
-                            .build();
-
-            return ResponseEntity.ok().body(loginResponseDTO);
-        }).orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-    }
-
-    private String getJWTToken(String email, String role, int id) {
-        return JWTCoder.generateJWT(email, Collections.singletonList(role), id);
     }
 
 }

@@ -1,6 +1,8 @@
 package com.demo.sqlite.utils;
 
 
+import java.util.Arrays;
+
 public enum Roles {
     ADMIN("ADMIN"),
     EMPLOYEE("EMPLOYEE"),
@@ -18,6 +20,15 @@ public enum Roles {
 
     public String getRoleWithPrefix() {
         return "ROLE_" + role;
+    }
+
+    public static boolean isValid(String role) {
+        for (Roles current : Roles.values()) {
+            if (current.getRole().equalsIgnoreCase(role)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
