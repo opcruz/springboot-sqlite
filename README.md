@@ -38,7 +38,7 @@ cd springboot-sqlite
 3. Build the project:
 
 ```shell
-mvn clean install
+mvn clean package
 ```
 
 4. Run the application:
