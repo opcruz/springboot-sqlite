@@ -1,4 +1,4 @@
-package com.demo.sqlite.utils;
+package com.demo.sqlite.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -32,7 +32,7 @@ public class JWTCoder {
                         .id(ISSUER)
                         .subject(subject)
                         .claims(Map.of("userId", userId))
-                        .claim("authorities", roles)
+                        .claim("roles", roles)
                         .issuedAt(new Date(now))
                         .expiration(new Date(now + TIME_EXPIRATION))
                         .signWith(SECRET_KEY)

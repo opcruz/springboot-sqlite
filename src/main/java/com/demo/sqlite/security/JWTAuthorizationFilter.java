@@ -1,6 +1,9 @@
-package com.demo.sqlite.utils;
+package com.demo.sqlite.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,7 +32,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         try {
             if (isJWTValid(request, response)) {
                 Claims claims = parseJWT(request);
-                if (claims.get("authorities") != null) {
+                if (claims.get("roles") != null) {
                     setUpSpringAuthentication(claims);
                 } else {
                     SecurityContextHolder.clearContext();
@@ -52,13 +55,18 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     private void setUpSpringAuthentication(Claims claims) {
         @SuppressWarnings("unchecked")
-        List<String> authorities = (List<String>) claims.get("authorities");
-
+        List<String> roles = (List<String>) claims.get("roles");
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(claims.getSubject(), null,
-                authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
-        auth.setDetails(claims);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+                roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
 
+        UserAuthenticateInfo userAuthenticateInfo =
+                UserAuthenticateInfo.builder()
+                        .userId(claims.get("userId", Integer.class))
+                        .subject(claims.getSubject())
+                        .roles(roles)
+                        .build();
+        auth.setDetails(userAuthenticateInfo);
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     private boolean isJWTValid(HttpServletRequest request, HttpServletResponse res) {

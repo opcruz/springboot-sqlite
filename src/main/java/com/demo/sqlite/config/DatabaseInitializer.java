@@ -15,7 +15,6 @@ import java.sql.Statement;
 @Component
 @Slf4j
 public class DatabaseInitializer {
-
     private final DataSource dataSource;
 
     public DatabaseInitializer(@Autowired DataSource dataSource) {
@@ -32,8 +31,7 @@ public class DatabaseInitializer {
             String line;
             StringBuilder script = new StringBuilder();
             while ((line = reader.readLine()) != null) {
-                script.append(line);
-                script.append("\n");
+                script.append(line).append("\n");
             }
             reader.close();
             // Ejecutar el script SQL
