@@ -1,5 +1,7 @@
 # Ecommerce Demo using Spring Boot and SQLite
 
+[![CI Build](https://github.com/opcruz/springboot-sqlite/actions/workflows/build-and-test.yml/badge.svg?branch=master)](https://github.com/opcruz/springboot-sqlite/actions/workflows/build-and-test.yml)
+
 This is a simple demo of an ecommerce application built with Spring Boot and SQLite. The API provides endpoints for managing products, customers, and orders, following the principles of REST (Representational State Transfer).
 ## Features
 
