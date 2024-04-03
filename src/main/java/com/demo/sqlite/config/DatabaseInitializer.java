@@ -25,7 +25,6 @@ public class DatabaseInitializer {
     public void initialize() {
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            // Leer el archivo de script SQL como recurso
             InputStream inputStream = this.getClass().getResourceAsStream("/tables-sqlite.sql");
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
@@ -34,13 +33,12 @@ public class DatabaseInitializer {
                 script.append(line).append("\n");
             }
             reader.close();
-            // Ejecutar el script SQL
             statement.executeUpdate(script.toString());
             statement.close();
             connection.close();
-            log.info("El script SQL se ha ejecutado correctamente.");
+            log.info("The SQL script was executed successfully.");
         } catch (Exception e) {
-            log.error("Error al ejecutar el script SQL: " + e.getMessage());
+            log.error("Error executing SQL script", e);
         }
 
     }

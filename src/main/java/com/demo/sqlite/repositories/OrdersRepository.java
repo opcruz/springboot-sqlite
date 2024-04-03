@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OrderRepository extends CrudRepository<Order, Integer> {
+public interface OrdersRepository extends CrudRepository<Order, Integer> {
 
     @Query(value = "SELECT u FROM orders u WHERE u.client_id = :client_id")
     List<Order> findByClientId(@Param("client_id") Integer clientId);

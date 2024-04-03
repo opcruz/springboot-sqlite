@@ -10,5 +10,4 @@ public class SQLiteDemoApplication {
         SpringApplication.run(SQLiteDemoApplication.class, args);
     }
 
-
 }
