@@ -89,6 +89,22 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.graalvm.buildtools</groupId>
+				<artifactId>native-maven-plugin</artifactId>
+				<configuration>
+					<metadataRepository>
+						<enabled>true</enabled>
+					</metadataRepository>
+					<buildArgs>
+						<buildArg>-Ob</buildArg>
+						<buildArg>-H:ReflectionConfigurationFiles=./resources/META-INF/native-image/reflect-config.json</buildArg>
+						<buildArg>-H:ResourceConfigurationFiles=./resources/META-INF/native-image/resource-config.json</buildArg>
+						<!-- <buildArg>-H:IncludeResources="tables-sqlite.sql"</buildArg> -->
+						<!-- <buildArg>-H:Log=registerResource:3</buildArg> -->
+					</buildArgs>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
