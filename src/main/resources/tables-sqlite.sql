@@ -26,10 +26,8 @@ CREATE TABLE IF NOT EXISTS `employees` (
 CREATE TABLE IF NOT EXISTS `orders` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `client_id` INTEGER NOT NULL,
-    `status` TEXT NOT NULL,
     `payment_method` TEXT NOT NULL,
-    `total` REAL NOT NULL,
-    `created_at` TEXT NOT NULL,
+    `created_at` TIMESTAMP NOT NULL,
     FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`)
 );
 

@@ -13,7 +13,6 @@ import java.util.List;
 public class OrderResultDTO {
 
     private Integer id;
-    private String status;
     private String paymentMethod;
     private Double total;
     private Timestamp createdAt;

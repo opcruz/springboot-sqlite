@@ -3,7 +3,7 @@ package com.demo.sqlite.controllers;
 import com.demo.sqlite.dtos.OrderResultDTO;
 import com.demo.sqlite.models.Order;
 import com.demo.sqlite.security.UserAuthenticateInfo;
-import com.demo.sqlite.services.OrderService;
+import com.demo.sqlite.services.OrdersService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +16,9 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/orders")
 public class OrderController {
-    private final OrderService orderService;
+    private final OrdersService orderService;
 
-    public OrderController(@Autowired OrderService orderService) {
+    public OrderController(@Autowired OrdersService orderService) {
         this.orderService = orderService;
     }
 

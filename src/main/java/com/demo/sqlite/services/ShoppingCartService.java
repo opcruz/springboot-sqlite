@@ -3,13 +3,15 @@ package com.demo.sqlite.services;
 import com.demo.sqlite.dtos.ProductCartDTO;
 import com.demo.sqlite.dtos.ShoppingCartJoined;
 import com.demo.sqlite.dtos.ShoppingCartResultDTO;
+import com.demo.sqlite.exceptions.ValidationError;
 import com.demo.sqlite.models.Order;
 import com.demo.sqlite.models.OrderDetails;
 import com.demo.sqlite.models.ShoppingCart;
 import com.demo.sqlite.repositories.OrderDetailsRepository;
-import com.demo.sqlite.repositories.OrderRepository;
+import com.demo.sqlite.repositories.OrdersRepository;
 import com.demo.sqlite.repositories.ShoppingCartRepository;
 import com.demo.sqlite.repositories.StockRepository;
+import com.demo.sqlite.utils.PaymentMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -18,18 +20,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ShoppingCartService {
     private final StockRepository stockRepository;
     private final ShoppingCartRepository shoppingCartRepository;
-    private final OrderRepository orderRepository;
+    private final OrdersRepository orderRepository;
     private final OrderDetailsRepository orderDetailsRepository;
 
     public ShoppingCartService(@Autowired StockRepository stockRepository,
                                @Autowired ShoppingCartRepository shoppingCartRepository,
-                               @Autowired OrderRepository orderRepository,
+                               @Autowired OrdersRepository orderRepository,
                                @Autowired OrderDetailsRepository orderDetailsRepository) {
         this.stockRepository = stockRepository;
         this.shoppingCartRepository = shoppingCartRepository;
@@ -87,37 +90,30 @@ public class ShoppingCartService {
     }
 
     @Transactional(rollbackFor = {SQLException.class})
-    public Order buyCart(int clientId, String payment_method) {
-        Iterable<ShoppingCartJoined> shoppingCartJList = shoppingCartRepository.filterByClientId(clientId);
-
-        double total = 0.0f;
-        LinkedList<Integer> deletedCartIds = new LinkedList<>();
-        for (ShoppingCartJoined c : shoppingCartJList) {
-            total += c.getQuantity() * c.getStock().getPrice();
-            deletedCartIds.add(c.getId());
+    public Order buyCart(int clientId, String paymentMethod) throws ValidationError {
+        if (!PaymentMethods.isValid(paymentMethod)) {
+            throw new ValidationError();
         }
+        List<ShoppingCartJoined> shoppingCartJList = shoppingCartRepository.filterByClientId(clientId);
+        List<Integer> shoppingCartIds =
+                shoppingCartJList.stream().map(ShoppingCartJoined::getId).toList();
 
-        Order o = new Order();
-        o.setCreated_at(new Timestamp(System.currentTimeMillis()));
-        o.setStatus("pagado");
-        o.setPayment_method(payment_method);
-        o.setTotal(total);
-        o.setClient_id(clientId);
-        Order orderSaved = orderRepository.save(o);
-
-        LinkedList<OrderDetails> list = new LinkedList<>();
-        for (ShoppingCartJoined cart : shoppingCartJList) {
-            OrderDetails details =
-                    OrderDetails.builder()
-                            .order_id(orderSaved.getId())
-                            .product_code(cart.getStock().getCode())
-                            .quantity(cart.getQuantity())
-                            .price(cart.getStock().getPrice())
-                            .build();
-            list.add(details);
-        }
-        orderDetailsRepository.saveAll(list);
-        shoppingCartRepository.deleteAllById(deletedCartIds);
+        Order newOrder = Order.builder()
+                .payment_method(paymentMethod)
+                .client_id(clientId)
+                .created_at(new Timestamp(System.currentTimeMillis()))
+                .build();
+        Order orderSaved = orderRepository.save(newOrder);
+        List<OrderDetails> orderDetailsList = shoppingCartJList.stream().map(cart ->
+                OrderDetails.builder()
+                        .order_id(orderSaved.getId())
+                        .product_code(cart.getStock().getCode())
+                        .quantity(cart.getQuantity())
+                        .price(cart.getStock().getPrice())
+                        .build()
+        ).toList();
+        orderDetailsRepository.saveAll(orderDetailsList);
+        shoppingCartRepository.deleteAllById(shoppingCartIds);
         return orderSaved;
     }
 

@@ -42,7 +42,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SecurityException ex) {
-            log.info("Error logging in: {}", ex.getMessage());
+            log.warn("Error logging in: {}", ex.getMessage());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.sendError(HttpServletResponse.SC_FORBIDDEN, ex.getMessage());
         }

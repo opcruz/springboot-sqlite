@@ -21,9 +21,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int client_id;
-    private String status;
     private String payment_method;
-    private double total;
     private Timestamp created_at;
 
 }

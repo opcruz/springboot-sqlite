@@ -1,13 +1,18 @@
 package com.demo.sqlite.controllers;
 
 import com.demo.sqlite.dtos.ShoppingCartResultDTO;
+import com.demo.sqlite.exceptions.ValidationError;
 import com.demo.sqlite.models.Order;
 import com.demo.sqlite.models.ShoppingCart;
 import com.demo.sqlite.security.UserAuthenticateInfo;
 import com.demo.sqlite.services.ShoppingCartService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +36,7 @@ public class ShoppingCartController {
 
     @DeleteMapping(path = "/{cartId}")
     @Operation(summary = "Delete cart product", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<Void> deleteStockFromCart(@RequestParam Integer cartId,
+    public ResponseEntity<Void> deleteStockFromCart(@PathVariable Integer cartId,
                                                     Authentication auth) {
         int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
         if (shoppingCartService.deleteStockFromCart(cartId, clientId)) {
@@ -54,10 +59,24 @@ public class ShoppingCartController {
 
     @PostMapping(path = "/buy")
     @Operation(summary = "Buy cart", security = @SecurityRequirement(name = "bearerAuth"))
-    public @ResponseBody Order buyCart(@RequestParam String payment_method,
-                                       Authentication auth) {
+    public @ResponseBody ResponseEntity<Order> buyCart(
+            @Parameter(
+                    name = "payment_method",
+                    description = "Payment Method",
+                    in = ParameterIn.QUERY,
+                    schema = @Schema(type = "string", allowableValues = {"CASH", "VISA", "MASTERCARD", "PAYPAL"}),
+                    example = "CASH")
+            @RequestParam(name = "payment_method") String paymentMethod,
+            Authentication auth
+    ) {
         int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
-        return shoppingCartService.buyCart(clientId, payment_method);
+        try {
+            Order order = shoppingCartService.buyCart(clientId, paymentMethod);
+            return ResponseEntity.ok().body(order);
+        } catch (
+                ValidationError e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
 }

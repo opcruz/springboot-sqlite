@@ -29,7 +29,6 @@ class WebSecurityConfig {
                 .authorizeHttpRequests(d -> d.requestMatchers(HttpMethod.GET, "/stocks/**").permitAll())
                 .authorizeHttpRequests(d -> d.requestMatchers("/carts/**").hasRole(Roles.CLIENT.getRole()))
                 .authorizeHttpRequests(d -> d.requestMatchers("/orders/**").hasRole(Roles.CLIENT.getRole()))
-                .authorizeHttpRequests(d -> d.requestMatchers("/orders/**").hasRole(Roles.CLIENT.getRole()))
                 .authorizeHttpRequests(d -> d.anyRequest().authenticated())
                 .build();
     }
