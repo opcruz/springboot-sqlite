@@ -1,6 +1,6 @@
 package com.demo.sqlite.services;
 
-import com.demo.sqlite.dtos.OrderResultDTO;
+import com.demo.sqlite.dtos.OrderResultResponseDTO;
 import com.demo.sqlite.dtos.ProductOrderDTO;
 import com.demo.sqlite.models.Order;
 import com.demo.sqlite.repositories.OrderDetailsRepository;
@@ -27,7 +27,7 @@ public class OrdersService {
         return orderRepository.findByClientId(clientId);
     }
 
-    public Optional<OrderResultDTO> orderDetails(int clientId, int orderId) {
+    public Optional<OrderResultResponseDTO> orderDetails(int clientId, int orderId) {
         Optional<Order> order = orderRepository.findByIdAndClientId(clientId, orderId);
         return order.map(value -> {
             List<ProductOrderDTO> products = orderDetailsRepository.findByOrderId(value.getId());
@@ -35,7 +35,7 @@ public class OrdersService {
                     products.stream()
                             .mapToDouble(product -> product.getPrice() * product.getQuantity())
                             .sum();
-            return OrderResultDTO.builder()
+            return OrderResultResponseDTO.builder()
                     .id(value.getId())
                     .paymentMethod(value.getPayment_method())
                     .total(total)

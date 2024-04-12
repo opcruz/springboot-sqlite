@@ -1,6 +1,6 @@
 package com.demo.sqlite.controllers;
 
-import com.demo.sqlite.dtos.ShoppingCartResultDTO;
+import com.demo.sqlite.dtos.ShoppingCartResultResponseDTO;
 import com.demo.sqlite.exceptions.ValidationError;
 import com.demo.sqlite.models.Order;
 import com.demo.sqlite.models.ShoppingCart;
@@ -28,9 +28,9 @@ public class ShoppingCartController {
 
     @GetMapping
     @Operation(summary = "List cart products", security = @SecurityRequirement(name = "bearerAuth"))
-    public @ResponseBody ResponseEntity<ShoppingCartResultDTO> getShoppingCart(Authentication auth) {
+    public @ResponseBody ResponseEntity<ShoppingCartResultResponseDTO> getShoppingCart(Authentication auth) {
         int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
-        ShoppingCartResultDTO shoppingCart = shoppingCartService.getShoppingCart(clientId);
+        ShoppingCartResultResponseDTO shoppingCart = shoppingCartService.getShoppingCart(clientId);
         return ResponseEntity.ok().body(shoppingCart);
     }
 

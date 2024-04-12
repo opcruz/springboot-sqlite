@@ -21,7 +21,7 @@ class WebSecurityConfig {
                 .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(d -> d.requestMatchers(HttpMethod.GET, "/").permitAll())
                 .authorizeHttpRequests(d -> d.requestMatchers(HttpMethod.POST, "/users/**").permitAll())
-                .authorizeHttpRequests(d -> d.requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll())
+                .authorizeHttpRequests(d -> d.requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/api-docs/**").permitAll())
                 .authorizeHttpRequests(d -> d.requestMatchers(HttpMethod.GET, "/lookup/**").permitAll())
                 .authorizeHttpRequests(d -> d.requestMatchers(HttpMethod.POST, "/stocks/**").hasRole(Roles.EMPLOYEE.getRole()))
                 .authorizeHttpRequests(d -> d.requestMatchers(HttpMethod.PUT, "/stocks/**").hasRole(Roles.EMPLOYEE.getRole()))

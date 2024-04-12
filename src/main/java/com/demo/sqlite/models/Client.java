@@ -1,5 +1,6 @@
 package com.demo.sqlite.models;
 
+import com.demo.sqlite.dtos.ClientSignupRequestDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,5 +27,18 @@ public class Client {
     private String phone;
     private String email;
     private String password_hash;
+
+    public static Client fromSignupDTO(ClientSignupRequestDTO clientSignupDTO, String passwordHash) {
+        return Client.builder()
+                .name(clientSignupDTO.getName())
+                .surnames(clientSignupDTO.getSurnames())
+                .direction(clientSignupDTO.getDirection())
+                .state(clientSignupDTO.getState())
+                .postal_code(clientSignupDTO.getPostal_code())
+                .phone(clientSignupDTO.getPhone())
+                .email(clientSignupDTO.getEmail())
+                .password_hash(passwordHash)
+                .build();
+    }
 
 }

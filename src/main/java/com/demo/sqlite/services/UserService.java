@@ -1,17 +1,19 @@
 package com.demo.sqlite.services;
 
+import com.demo.sqlite.dtos.ClientSignupRequestDTO;
+import com.demo.sqlite.dtos.EmployeeSignupRequestDTO;
 import com.demo.sqlite.dtos.LoginRequestDTO;
 import com.demo.sqlite.dtos.LoginResponseDTO;
+import com.demo.sqlite.exceptions.ValidationError;
+import com.demo.sqlite.models.Client;
+import com.demo.sqlite.models.Employee;
 import com.demo.sqlite.repositories.ClientRepository;
 import com.demo.sqlite.repositories.EmployeeRepository;
 import com.demo.sqlite.security.JWTCoder;
 import com.demo.sqlite.utils.Roles;
 import jakarta.xml.bind.DatatypeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import com.demo.sqlite.exceptions.ValidationError;
 
 import java.security.MessageDigest;
 import java.util.Collections;
@@ -41,7 +43,7 @@ public class UserService {
 
     public Optional<LoginResponseDTO> login(LoginRequestDTO requestDTO, String role) throws ValidationError {
         if (!Roles.isValid(role)) {
-           throw new ValidationError();
+            throw new ValidationError();
         }
         md.reset();
         md.update(requestDTO.getPassword().getBytes());
@@ -78,6 +80,28 @@ public class UserService {
 
     private String getJWTToken(String email, String role, int id) {
         return JWTCoder.generateJWT(email, Collections.singletonList(role), id);
+    }
+
+    public Client signupClient(ClientSignupRequestDTO requestDTO) throws ValidationError {
+        if (clientRepository.existEmail(requestDTO.getEmail()).isPresent()) {
+            throw new ValidationError("Email already exists");
+        }
+        md.reset();
+        md.update(requestDTO.getPassword().getBytes());
+        String passwordHash = DatatypeConverter.printHexBinary(md.digest()).toUpperCase();
+        Client newClient = Client.fromSignupDTO(requestDTO, passwordHash);
+        return clientRepository.save(newClient);
+    }
+
+    public Employee signupEmployee(EmployeeSignupRequestDTO requestDTO) throws ValidationError {
+        if (employeeRepository.existEmail(requestDTO.getEmail()).isPresent()) {
+            throw new ValidationError("Email already exists");
+        }
+        md.reset();
+        md.update(requestDTO.getPassword().getBytes());
+        String passwordHash = DatatypeConverter.printHexBinary(md.digest()).toUpperCase();
+        Employee newEmployee = Employee.fromSignupDTO(requestDTO, passwordHash);
+        return employeeRepository.save(newEmployee);
     }
 
 

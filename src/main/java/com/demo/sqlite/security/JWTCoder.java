@@ -11,8 +11,7 @@ import java.util.Map;
 public class JWTCoder {
 
     public static final String ISSUER = "ecommerce";
-    public static final long TIME_EXPIRATION = 600000;
-
+    public static final long TIME_EXPIRATION = 30 * 60 * 1000; // 30 minutes
     public static final SecretKey SECRET_KEY = Jwts.SIG.HS256.key().build();
 
 

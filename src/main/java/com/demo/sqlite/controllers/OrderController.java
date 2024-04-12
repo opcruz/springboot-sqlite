@@ -1,6 +1,6 @@
 package com.demo.sqlite.controllers;
 
-import com.demo.sqlite.dtos.OrderResultDTO;
+import com.demo.sqlite.dtos.OrderResultResponseDTO;
 import com.demo.sqlite.models.Order;
 import com.demo.sqlite.security.UserAuthenticateInfo;
 import com.demo.sqlite.services.OrdersService;
@@ -31,8 +31,8 @@ public class OrderController {
 
     @GetMapping(path = "/{order_id}/details")
     @Operation(summary = "List orders", security = @SecurityRequirement(name = "bearerAuth"))
-    public @ResponseBody ResponseEntity<OrderResultDTO> orderDetails(@PathVariable(value = "order_id") Integer orderId,
-                                                                     Authentication auth) {
+    public @ResponseBody ResponseEntity<OrderResultResponseDTO> orderDetails(@PathVariable(value = "order_id") Integer orderId,
+                                                                             Authentication auth) {
         int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
         return orderService.orderDetails(clientId, orderId)
                 .map(result -> ResponseEntity.ok().body(result))
