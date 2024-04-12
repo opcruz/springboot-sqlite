@@ -2,7 +2,7 @@ package com.demo.sqlite.services;
 
 import com.demo.sqlite.dtos.ProductCartDTO;
 import com.demo.sqlite.dtos.ShoppingCartJoined;
-import com.demo.sqlite.dtos.ShoppingCartResultDTO;
+import com.demo.sqlite.dtos.ShoppingCartResultResponseDTO;
 import com.demo.sqlite.exceptions.ValidationError;
 import com.demo.sqlite.models.Order;
 import com.demo.sqlite.models.OrderDetails;
@@ -40,10 +40,10 @@ public class ShoppingCartService {
         this.orderDetailsRepository = orderDetailsRepository;
     }
 
-    public ShoppingCartResultDTO getShoppingCart(int clientId) {
+    public ShoppingCartResultResponseDTO getShoppingCart(int clientId) {
         Iterable<ShoppingCartJoined> shoppingCarts = shoppingCartRepository.filterByClientId(clientId);
 
-        ShoppingCartResultDTO.ShoppingCartResultDTOBuilder builder = ShoppingCartResultDTO.builder();
+        ShoppingCartResultResponseDTO.ShoppingCartResultResponseDTOBuilder builder = ShoppingCartResultResponseDTO.builder();
         builder.clientId(clientId);
 
         double total = 0.0;

@@ -7,7 +7,7 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
-public class ShoppingCartResultDTO {
+public class ShoppingCartResultResponseDTO {
 
     private Integer clientId;
     private Double total;

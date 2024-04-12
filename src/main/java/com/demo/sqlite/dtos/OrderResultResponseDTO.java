@@ -10,7 +10,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
-public class OrderResultDTO {
+public class OrderResultResponseDTO {
 
     private Integer id;
     private String paymentMethod;

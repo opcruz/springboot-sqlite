@@ -11,7 +11,6 @@ import lombok.Data;
 public class ProductCartDTO {
 
     private Integer cartId;
-
     private Integer quantity;
     private Stock stock;
 

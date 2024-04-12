@@ -51,5 +51,5 @@ mvn spring-boot:run
 
 5. Access the API:
 
-[API testing](http://localhost:8080/ecommerce/swagger-ui/index.html)
+- [API testing](http://localhost:8080/ecommerce/api/v1/swagger-ui/index.html)
 
