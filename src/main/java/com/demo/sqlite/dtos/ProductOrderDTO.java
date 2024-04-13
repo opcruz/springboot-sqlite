@@ -24,7 +24,7 @@ public class ProductOrderDTO {
                 Stock.builder()
                         .code(code)
                         .description(description)
-                        .category_id(category)
+                        .categoryId(category)
                         .status(status)
                         .build();
     }

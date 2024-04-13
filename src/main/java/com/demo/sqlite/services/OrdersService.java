@@ -37,9 +37,9 @@ public class OrdersService {
                             .sum();
             return OrderResultResponseDTO.builder()
                     .id(value.getId())
-                    .paymentMethod(value.getPayment_method())
+                    .paymentMethod(value.getPaymentMethod())
                     .total(total)
-                    .createdAt(value.getCreated_at())
+                    .createdAt(value.getCreatedAt())
                     .products(products)
                     .build();
         });

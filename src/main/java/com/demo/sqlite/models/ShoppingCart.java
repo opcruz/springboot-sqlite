@@ -1,9 +1,6 @@
 package com.demo.sqlite.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +15,9 @@ public class ShoppingCart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int product_code;
+    @Column(name = "product_code")
+    private int productCode;
     private int quantity;
-    private int client_id;
+    @Column(name = "client_id")
+    private int clientId;
 }

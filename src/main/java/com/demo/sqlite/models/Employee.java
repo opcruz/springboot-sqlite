@@ -1,10 +1,7 @@
 package com.demo.sqlite.models;
 
 import com.demo.sqlite.dtos.EmployeeSignupRequestDTO;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,14 +19,15 @@ public class Employee {
     private String name;
     private String surnames;
     private String email;
-    private String password_hash;
+    @Column(name = "password_hash")
+    private String passwordHash;
 
     public static Employee fromSignupDTO(EmployeeSignupRequestDTO signupDTO, String passwordHash) {
         return Employee.builder()
                 .name(signupDTO.getName())
                 .surnames(signupDTO.getSurnames())
                 .email(signupDTO.getEmail())
-                .password_hash(passwordHash)
+                .passwordHash(passwordHash)
                 .build();
     }
 

@@ -12,10 +12,10 @@ import java.util.Optional;
 @Repository
 public interface OrdersRepository extends CrudRepository<Order, Integer> {
 
-    @Query(value = "SELECT u FROM orders u WHERE u.client_id = :client_id")
+    @Query(value = "SELECT u FROM orders u WHERE u.clientId = :client_id")
     List<Order> findByClientId(@Param("client_id") Integer clientId);
 
-    @Query(value = "SELECT u FROM orders u WHERE u.id = :id AND u.client_id = :client_id ")
+    @Query(value = "SELECT u FROM orders u WHERE u.id = :id AND u.clientId = :client_id ")
     Optional<Order> findByIdAndClientId(@Param("client_id") Integer clientId, @Param("id") Integer id);
 
 }

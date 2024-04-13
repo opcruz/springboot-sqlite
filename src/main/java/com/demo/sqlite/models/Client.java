@@ -1,10 +1,7 @@
 package com.demo.sqlite.models;
 
 import com.demo.sqlite.dtos.ClientSignupRequestDTO;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,10 +20,12 @@ public class Client {
     private String surnames;
     private String direction;
     private String state;
-    private String postal_code;
+    @Column(name = "postal_code")
+    private String postalCode;
     private String phone;
     private String email;
-    private String password_hash;
+    @Column(name = "password_hash")
+    private String passwordHash;
 
     public static Client fromSignupDTO(ClientSignupRequestDTO clientSignupDTO, String passwordHash) {
         return Client.builder()
@@ -34,10 +33,10 @@ public class Client {
                 .surnames(clientSignupDTO.getSurnames())
                 .direction(clientSignupDTO.getDirection())
                 .state(clientSignupDTO.getState())
-                .postal_code(clientSignupDTO.getPostal_code())
+                .postalCode(clientSignupDTO.getPostal_code())
                 .phone(clientSignupDTO.getPhone())
                 .email(clientSignupDTO.getEmail())
-                .password_hash(passwordHash)
+                .passwordHash(passwordHash)
                 .build();
     }
 
