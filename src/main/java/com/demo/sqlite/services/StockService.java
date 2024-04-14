@@ -45,12 +45,12 @@ public class StockService {
         Stock newStock =
                 Stock.builder()
                         .description(description)
-                        .category_id(categoryId)
+                        .categoryId(categoryId)
                         .status(status)
                         .price(price)
                         .quantity(quantity)
-                        .updated_by(clientId)
-                        .created_by(clientId)
+                        .createdBy(clientId)
+                        .updatedBy(clientId)
                         .build();
         imageOpt.ifPresent(newStock::setImage);
         return stockRepository.save(newStock);
@@ -67,11 +67,11 @@ public class StockService {
         return
                 stockOptional.map(stock -> {
                     stock.setDescription(description);
-                    stock.setCategory_id(categoryId);
+                    stock.setCategoryId(categoryId);
                     stock.setStatus(status);
                     stock.setPrice(price);
                     stock.setQuantity(quantity);
-                    stock.setUpdated_by(clientId);
+                    stock.setUpdatedBy(clientId);
                     imageOpt.ifPresent(stock::setImage);
                     stockRepository.save(stock);
                     return StockResponseDTO.from(stock, optionalCategory.get());

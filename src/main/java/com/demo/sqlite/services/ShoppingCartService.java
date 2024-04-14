@@ -68,9 +68,9 @@ public class ShoppingCartService {
             if (product.getQuantity() >= quantity) {
                 ShoppingCart saved = shoppingCartRepository.save(
                         ShoppingCart.builder()
-                                .product_code(productCode)
+                                .productCode(productCode)
                                 .quantity(quantity)
-                                .client_id(clientId)
+                                .clientId(clientId)
                                 .build()
                 );
                 return Optional.of(saved);
@@ -99,15 +99,15 @@ public class ShoppingCartService {
                 shoppingCartJList.stream().map(ShoppingCartJoined::getId).toList();
 
         Order newOrder = Order.builder()
-                .payment_method(paymentMethod)
-                .client_id(clientId)
-                .created_at(new Timestamp(System.currentTimeMillis()))
+                .paymentMethod(paymentMethod)
+                .clientId(clientId)
+                .createdAt(new Timestamp(System.currentTimeMillis()))
                 .build();
         Order orderSaved = orderRepository.save(newOrder);
         List<OrderDetails> orderDetailsList = shoppingCartJList.stream().map(cart ->
                 OrderDetails.builder()
-                        .order_id(orderSaved.getId())
-                        .product_code(cart.getStock().getCode())
+                        .orderId(orderSaved.getId())
+                        .productCode(cart.getStock().getCode())
                         .quantity(cart.getQuantity())
                         .price(cart.getStock().getPrice())
                         .build()

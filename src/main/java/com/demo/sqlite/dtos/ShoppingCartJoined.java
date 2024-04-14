@@ -27,7 +27,7 @@ public class ShoppingCartJoined {
                         .code(code)
                         .description(description)
                         .quantity(quantityStock)
-                        .category_id(category)
+                        .categoryId(category)
                         .price(price)
                         .status(status)
                         .build();

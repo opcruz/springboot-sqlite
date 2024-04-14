@@ -1,9 +1,6 @@
 package com.demo.sqlite.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,8 +17,11 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int client_id;
-    private String payment_method;
-    private Timestamp created_at;
+    @Column(name = "client_id")
+    private int clientId;
+    @Column(name = "payment_method")
+    private String paymentMethod;
+    @Column(name = "created_at")
+    private Timestamp createdAt;
 
 }

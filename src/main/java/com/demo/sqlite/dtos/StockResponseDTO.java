@@ -47,8 +47,8 @@ public class StockResponseDTO {
                 stock.getQuantity(),
                 stock.getPrice(),
                 stock.getStatus(),
-                stock.getCreated_by(),
-                stock.getUpdated_by()
+                stock.getCreatedBy(),
+                stock.getUpdatedBy()
         );
     }
 

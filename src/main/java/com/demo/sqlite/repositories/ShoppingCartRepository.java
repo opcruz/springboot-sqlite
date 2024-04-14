@@ -14,12 +14,12 @@ import java.util.List;
 public interface ShoppingCartRepository extends CrudRepository<ShoppingCart, Integer> {
 
     @Query(value = "SELECT new com.demo.sqlite.dtos.ShoppingCartJoined(u.id, u.quantity," +
-            " s.code, s.description, s.quantity, s.category_id, s.price, s.status)" +
-            " FROM shopping_cart u JOIN stock s ON u.product_code = s.code WHERE u.client_id = :client_id")
+            " s.code, s.description, s.quantity, s.categoryId, s.price, s.status)" +
+            " FROM shopping_cart u JOIN stock s ON u.productCode = s.code WHERE u.clientId = :client_id")
     List<ShoppingCartJoined> filterByClientId(@Param("client_id") Integer clientId);
 
     @Modifying
-    @Query(value = "DELETE FROM shopping_cart u WHERE u.id = :cart_id AND u.client_id = :client_id")
+    @Query(value = "DELETE FROM shopping_cart u WHERE u.id = :cart_id AND u.clientId = :client_id")
     Integer deleteByIdAndClientId(@Param("cart_id") Integer cartId, @Param("client_id") Integer clientId);
 
 }

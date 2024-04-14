@@ -15,12 +15,12 @@ import java.util.Optional;
 public interface StockRepository extends CrudRepository<Stock, Integer> {
 
     @Query(value = "SELECT new com.demo.sqlite.dtos.StockResponseDTO(u.code, u.description, s.id,s.category, s.description," +
-            " u.quantity, u.price, u.status, u.created_by, u.updated_by) FROM stock u JOIN categories s ON u.category_id = s.id" +
+            " u.quantity, u.price, u.status, u.createdBy, u.updatedBy) FROM stock u JOIN categories s ON u.categoryId = s.id" +
             " WHERE (:phrase IS NULL OR u.description LIKE %:phrase%)")
     Page<StockResponseDTO> filterByPhraseAndPagination(@Param("phrase") String phrase, Pageable pageable);
 
     @Query(value = "SELECT new com.demo.sqlite.dtos.StockResponseDTO(u.code, u.description, s.id,s.category, s.description," +
-            " u.quantity, u.price, u.status, u.created_by, u.updated_by) FROM stock u JOIN categories s ON u.category_id = s.id" +
+            " u.quantity, u.price, u.status, u.createdBy, u.updatedBy) FROM stock u JOIN categories s ON u.categoryId = s.id" +
             " WHERE u.code = :code")
     Optional<StockResponseDTO> findStockResponseDTOById(@Param("code") Integer code);
 
