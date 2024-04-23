@@ -50,9 +50,8 @@ public class ShoppingCartController {
                                                        @RequestParam Integer quantity,
                                                        Authentication auth) {
         int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
-        return shoppingCartService.addCartProduct(clientId, productCode, quantity)
-                .map(result -> ResponseEntity.ok().body(result))
-                .orElse(ResponseEntity.notFound().build());
+        ShoppingCart shoppingCart = shoppingCartService.addCartProduct(clientId, productCode, quantity);
+        return ResponseEntity.ok().body(shoppingCart);
     }
 
     @PostMapping(path = "/buy")

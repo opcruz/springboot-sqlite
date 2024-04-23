@@ -49,7 +49,7 @@ public class OrderControllerRoutesTest {
     @Test
     void listOrdersWithoutAuth() throws Exception {
         // test
-        ResultActions response = mockMvc.perform(get("/orders/list"));
+        ResultActions response = mockMvc.perform(get("/orders"));
         // verify
         response.andExpect(status().isForbidden());
         verifyNoInteractions(orderService);
@@ -71,7 +71,7 @@ public class OrderControllerRoutesTest {
 
         // test
         ResultActions response = mockMvc.perform(
-                get("/orders/list")
+                get("/orders")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
         );
 
@@ -93,7 +93,7 @@ public class OrderControllerRoutesTest {
 
         // test
         ResultActions response = mockMvc.perform(
-                get("/orders/list")
+                get("/orders")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
         );
         // verify

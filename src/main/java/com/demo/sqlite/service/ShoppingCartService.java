@@ -10,7 +10,7 @@ public interface ShoppingCartService {
 
     ShoppingCartResultResponseDTO getShoppingCart(int clientId);
 
-    Optional<ShoppingCart> addCartProduct(int clientId, int productCode, int quantity);
+    public ShoppingCart addCartProduct(int clientId, int productCode, int quantity);
 
     boolean deleteStockFromCart(int cartId, int clientId);
 

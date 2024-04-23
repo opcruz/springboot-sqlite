@@ -14,7 +14,6 @@ import com.demo.sqlite.repository.StockRepository;
 import com.demo.sqlite.service.ShoppingCartService;
 import com.demo.sqlite.utils.PaymentMethods;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,30 +63,40 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return builder.build();
     }
 
-    public Optional<ShoppingCart> addCartProduct(int clientId, int productCode, int quantity) {
+    @Transactional(rollbackFor = {SQLException.class})
+    public ShoppingCart addCartProduct(int clientId, int productCode, int quantity) {
         return stockRepository.findById(productCode).flatMap(product -> {
-            if (product.getQuantity() >= quantity) {
-                ShoppingCart saved = shoppingCartRepository.save(
-                        ShoppingCart.builder()
-                                .productCode(productCode)
-                                .quantity(quantity)
-                                .clientId(clientId)
-                                .build()
-                );
-                return Optional.of(saved);
-            } else {
-                return Optional.empty();
-            }
-        });
+                    Optional<ShoppingCart> shoppingCartOpt =
+                            shoppingCartRepository.filterByClientIdAndStockCode(clientId, productCode);
+                    if (shoppingCartOpt.isPresent()) {
+                        int acum = shoppingCartOpt.get().getQuantity();
+                        if (product.getQuantity() >= (quantity + acum)) {
+                            ShoppingCart shoppingCartExists = shoppingCartOpt.get();
+                            shoppingCartExists.setQuantity(shoppingCartExists.getQuantity() + quantity);
+                            ShoppingCart saved = shoppingCartRepository.save(shoppingCartExists);
+                            return Optional.of(saved);
+                        } else {
+                            throw new ValidationError("Not enough stock, only " + product.getQuantity() + " available");
+                        }
+                    } else if (product.getQuantity() >= quantity) {
+                        ShoppingCart saved = shoppingCartRepository.save(
+                                ShoppingCart.builder()
+                                        .productCode(productCode)
+                                        .quantity(quantity)
+                                        .clientId(clientId)
+                                        .build()
+                        );
+                        return Optional.of(saved);
+                    } else {
+                        throw new ValidationError("Not enough stock, only " + product.getQuantity() + " available");
+                    }
+                })
+                .orElseThrow(() -> new ValidationError(String.format("Product with code %s not found", productCode)));
     }
 
+    @Transactional
     public boolean deleteStockFromCart(int cartId, int clientId) {
-        try {
-            shoppingCartRepository.deleteByIdAndClientId(cartId, clientId);
-            return true;
-        } catch (EmptyResultDataAccessException ex) {
-            return false;
-        }
+        return shoppingCartRepository.deleteByIdAndClientId(cartId, clientId) > 0;
     }
 
     @Transactional(rollbackFor = {SQLException.class})
@@ -96,6 +105,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             throw new ValidationError(String.format("Invalid payment method: %s", paymentMethod));
         }
         List<ShoppingCartJoined> shoppingCartJList = shoppingCartRepository.filterByClientId(clientId);
+        if (shoppingCartJList.isEmpty()) {
+            throw new ValidationError("Shopping cart is empty");
+        }
+        validateStockAvailability(shoppingCartJList);
         List<Integer> shoppingCartIds =
                 shoppingCartJList.stream().map(ShoppingCartJoined::getId).toList();
 
@@ -115,7 +128,24 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         ).toList();
         orderDetailsRepository.saveAll(orderDetailsList);
         shoppingCartRepository.deleteAllById(shoppingCartIds);
+        for (ShoppingCartJoined shoppingCart : shoppingCartJList) {
+            stockRepository.updateStockQuantity(
+                    shoppingCart.getStock().getCode(),
+                    shoppingCart.getStock().getQuantity() - shoppingCart.getQuantity()
+            );
+        }
         return orderSaved;
     }
 
+    private void validateStockAvailability(List<ShoppingCartJoined> shoppingCartJList) {
+        for (ShoppingCartJoined shoppingCart : shoppingCartJList) {
+            if (shoppingCart.getStock().getQuantity() < shoppingCart.getQuantity()) {
+                throw new ValidationError(String.format(
+                        "Not enough stock, only %s available for product: %s",
+                        shoppingCart.getStock().getQuantity(),
+                        shoppingCart.getStock().getDescription()
+                ));
+            }
+        }
+    }
 }
