@@ -22,16 +22,16 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @GetMapping(path = "/list")
+    @GetMapping
     @Operation(summary = "List orders", security = @SecurityRequirement(name = "bearerAuth"))
     public @ResponseBody List<Order> listOrders(Authentication auth) {
         int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
         return orderService.findByClientId(clientId);
     }
 
-    @GetMapping(path = "/{order_id}/details")
+    @GetMapping(path = "/{orderId}/details")
     @Operation(summary = "List orders", security = @SecurityRequirement(name = "bearerAuth"))
-    public @ResponseBody ResponseEntity<OrderResultResponseDTO> orderDetails(@PathVariable(value = "order_id") Integer orderId,
+    public @ResponseBody ResponseEntity<OrderResultResponseDTO> orderDetails(@PathVariable(value = "orderId") Integer orderId,
                                                                              Authentication auth) {
         int clientId = UserAuthenticateInfo.fromAuth(auth).getUserId();
         return orderService.orderDetails(clientId, orderId)

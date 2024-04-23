@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Login employees")
+    @Operation(summary = "Login user")
     public @ResponseBody ResponseEntity<LoginResponseDTO> login(
             @Valid @RequestBody LoginRequestDTO requestDTO,
             @Parameter(
@@ -46,7 +46,7 @@ public class UserController {
 
     }
 
-    @PostMapping("/client/signup")
+    @PostMapping("/clients/signup")
     @Operation(summary = "Signup new client")
     public @ResponseBody ResponseEntity<Map<String, String>> signupClient(@Valid @RequestBody ClientSignupRequestDTO requestDTO) {
         Client newClient = userService.signupClient(requestDTO);
@@ -58,7 +58,7 @@ public class UserController {
                 ));
     }
 
-    @PostMapping("/employee/signup")
+    @PostMapping("/employees/signup")
     @Operation(summary = "Signup new employee")
     public @ResponseBody ResponseEntity<Map<String, String>> signupEmployee(@Valid @RequestBody EmployeeSignupRequestDTO requestDTO) {
         Employee newEmployee = userService.signupEmployee(requestDTO);

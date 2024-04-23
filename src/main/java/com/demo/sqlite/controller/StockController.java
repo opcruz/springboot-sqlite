@@ -29,7 +29,7 @@ public class StockController {
         this.stockService = stockService;
     }
 
-    @GetMapping(path = "/list")
+    @GetMapping
     @Operation(summary = "List products")
     public @ResponseBody List<StockResponseDTO> getAllStocks(
             @RequestParam(required = false) String searchPhrase,
