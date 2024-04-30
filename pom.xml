@@ -96,7 +96,7 @@
 						<enabled>true</enabled>
 					</metadataRepository>
 					<buildArgs>
-						<buildArg>-Ob</buildArg>
+<!--						<buildArg>-Ob</buildArg>-->
 						<buildArg>-H:ReflectionConfigurationFiles=./resources/META-INF/native-image/reflect-config.json</buildArg>
 						<buildArg>-H:ResourceConfigurationFiles=./resources/META-INF/native-image/resource-config.json</buildArg>
 						<!-- <buildArg>-H:IncludeResources="tables-sqlite.sql"</buildArg> -->

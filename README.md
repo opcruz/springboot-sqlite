@@ -53,3 +53,9 @@ mvn spring-boot:run
 
 - [API testing](http://localhost:8080/ecommerce/api/v1/swagger-ui/index.html)
 
+
+## GraalVM Native Image
+
+```shell
+mvn -Pnative native:compile
+```
