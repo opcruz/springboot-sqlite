@@ -9,11 +9,11 @@ import lombok.Data;
 @Data
 @Schema(description = "Login Request DTO")
 public class LoginRequestDTO {
-    @Schema(example = "john@example.com")
-    @NotBlank(message = "Field 'email' is required")
-    String email;
-    @Schema(example = "ok")
-    @NotBlank(message = "Field 'password' is required")
-    String password;
+   @Schema(example = "john@example.com")
+   @NotBlank(message = "Field 'email' is required")
+   String email;
+   @Schema(example = "ok")
+   @NotBlank(message = "Field 'password' is required")
+   String password;
 
 }

@@ -9,12 +9,12 @@ import java.util.List;
 @Data
 @Builder
 public class UserAuthenticateInfo {
-    private int userId;
-    private String subject;
-    private List<String> roles;
+   private int userId;
+   private String subject;
+   private List<String> roles;
 
-    public static UserAuthenticateInfo fromAuth(Authentication auth) {
-        return (UserAuthenticateInfo) auth.getDetails();
-    }
+   public static UserAuthenticateInfo fromAuth(Authentication auth) {
+      return (UserAuthenticateInfo) auth.getDetails();
+   }
 
 }

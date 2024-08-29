@@ -22,52 +22,42 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
-    private final UserService userService;
+   private final UserService userService;
 
-    public UserController(@Autowired UserService userService) {
-        this.userService = userService;
-    }
+   public UserController(@Autowired UserService userService) {
+      this.userService = userService;
+   }
 
-    @PostMapping("/login")
-    @Operation(summary = "Login user")
-    public @ResponseBody ResponseEntity<LoginResponseDTO> login(
-            @Valid @RequestBody LoginRequestDTO requestDTO,
-            @Parameter(
-                    name = "role",
-                    description = "Role of user",
-                    in = ParameterIn.QUERY,
-                    schema = @Schema(type = "string", allowableValues = {"client", "employee"}),
-                    example = "client")
-            @RequestParam(defaultValue = "client") String role
-    ) {
-        return userService.login(requestDTO, role)
-                .map(loginResponseDTO -> ResponseEntity.ok().body(loginResponseDTO))
-                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+   @PostMapping("/login")
+   @Operation(summary = "Login user")
+   public @ResponseBody ResponseEntity<LoginResponseDTO> login(
+         @Valid @RequestBody LoginRequestDTO requestDTO,
+         @Parameter(name = "role", description = "Role of user", in = ParameterIn.QUERY, schema = @Schema(type = "string", allowableValues = {
+               "client", "employee" }), example = "client") @RequestParam(defaultValue = "client") String role) {
+      return userService.login(requestDTO, role)
+            .map(loginResponseDTO -> ResponseEntity.ok().body(loginResponseDTO))
+            .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
 
-    }
+   }
 
-    @PostMapping("/clients/signup")
-    @Operation(summary = "Signup new client")
-    public @ResponseBody ResponseEntity<Map<String, String>> signupClient(@Valid @RequestBody ClientSignupRequestDTO requestDTO) {
-        Client newClient = userService.signupClient(requestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of(
-                        "id", String.valueOf(newClient.getId()),
-                        "name", newClient.getName(),
-                        "email", newClient.getEmail()
-                ));
-    }
+   @PostMapping("/clients/signup")
+   @Operation(summary = "Signup new client")
+   public @ResponseBody ResponseEntity<Map<String, String>> signupClient(
+         @Valid @RequestBody ClientSignupRequestDTO requestDTO) {
+      Client newClient = userService.signupClient(requestDTO);
+      return ResponseEntity.status(HttpStatus.CREATED)
+            .body(Map.of("id", String.valueOf(newClient.getId()), "name", newClient.getName(),
+                  "email", newClient.getEmail()));
+   }
 
-    @PostMapping("/employees/signup")
-    @Operation(summary = "Signup new employee")
-    public @ResponseBody ResponseEntity<Map<String, String>> signupEmployee(@Valid @RequestBody EmployeeSignupRequestDTO requestDTO) {
-        Employee newEmployee = userService.signupEmployee(requestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of(
-                        "id", String.valueOf(newEmployee.getId()),
-                        "name", newEmployee.getName(),
-                        "email", newEmployee.getEmail()
-                ));
-    }
+   @PostMapping("/employees/signup")
+   @Operation(summary = "Signup new employee")
+   public @ResponseBody ResponseEntity<Map<String, String>> signupEmployee(
+         @Valid @RequestBody EmployeeSignupRequestDTO requestDTO) {
+      Employee newEmployee = userService.signupEmployee(requestDTO);
+      return ResponseEntity.status(HttpStatus.CREATED)
+            .body(Map.of("id", String.valueOf(newEmployee.getId()), "name", newEmployee.getName(),
+                  "email", newEmployee.getEmail()));
+   }
 
 }

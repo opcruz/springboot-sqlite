@@ -9,21 +9,21 @@ import java.util.Optional;
 
 public interface StockService {
 
-    List<StockResponseDTO> getAllStocks(String searchPhrase, Pageable pagination);
+   List<StockResponseDTO> getAllStocks(String searchPhrase, Pageable pagination);
 
-    Optional<byte[]> findImageByCode(int code);
+   Optional<byte[]> findImageByCode(int code);
 
-    StockResponseDTO addProduct(
-            String description, int categoryId, String status,
-            double price, int quantity, int clientId,
-            Optional<byte[]> imageOpt) throws ValidationError;
+   StockResponseDTO addProduct(
+         String description, int categoryId, String status,
+         double price, int quantity, int clientId,
+         Optional<byte[]> imageOpt) throws ValidationError;
 
-    Optional<StockResponseDTO> updateProduct(
-            int code, String description, int categoryId, String status,
-            double price, int quantity, int clientId, Optional<byte[]> imageOpt) throws ValidationError;
+   Optional<StockResponseDTO> updateProduct(
+         int code, String description, int categoryId, String status,
+         double price, int quantity, int clientId, Optional<byte[]> imageOpt) throws ValidationError;
 
-    Optional<StockResponseDTO> findStockByCode(int code);
+   Optional<StockResponseDTO> findStockByCode(int code);
 
-    boolean deleteProduct(int code);
+   boolean deleteProduct(int code);
 
 }

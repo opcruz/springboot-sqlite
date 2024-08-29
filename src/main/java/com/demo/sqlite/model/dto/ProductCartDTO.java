@@ -10,8 +10,8 @@ import lombok.Data;
 @Builder
 public class ProductCartDTO {
 
-    private Integer cartId;
-    private Integer quantity;
-    private Stock stock;
+   private Integer cartId;
+   private Integer quantity;
+   private Stock stock;
 
 }

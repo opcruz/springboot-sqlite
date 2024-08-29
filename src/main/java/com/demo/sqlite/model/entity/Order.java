@@ -14,14 +14,14 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @Column(name = "client_id")
-    private int clientId;
-    @Column(name = "payment_method")
-    private String paymentMethod;
-    @Column(name = "created_at")
-    private Timestamp createdAt;
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private int id;
+   @Column(name = "client_id")
+   private int clientId;
+   @Column(name = "payment_method")
+   private String paymentMethod;
+   @Column(name = "created_at")
+   private Timestamp createdAt;
 
 }

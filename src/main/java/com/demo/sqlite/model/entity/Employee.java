@@ -13,22 +13,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Employee {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private String name;
-    private String surnames;
-    private String email;
-    @Column(name = "password_hash")
-    private String passwordHash;
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private int id;
+   private String name;
+   private String surnames;
+   private String email;
+   @Column(name = "password_hash")
+   private String passwordHash;
 
-    public static Employee fromSignupDTO(EmployeeSignupRequestDTO signupDTO, String passwordHash) {
-        return Employee.builder()
-                .name(signupDTO.getName())
-                .surnames(signupDTO.getSurnames())
-                .email(signupDTO.getEmail())
-                .passwordHash(passwordHash)
-                .build();
-    }
+   public static Employee fromSignupDTO(EmployeeSignupRequestDTO signupDTO, String passwordHash) {
+      return Employee.builder().name(signupDTO.getName()).surnames(signupDTO.getSurnames())
+            .email(signupDTO.getEmail()).passwordHash(passwordHash).build();
+   }
 
 }

@@ -9,15 +9,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class LookupServiceImpl implements LookupService {
 
-    private final CategoryRepository categoryRepository;
+   private final CategoryRepository categoryRepository;
 
-    public LookupServiceImpl(@Autowired CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
+   public LookupServiceImpl(@Autowired CategoryRepository categoryRepository) {
+      this.categoryRepository = categoryRepository;
+   }
 
-    @Override
-    public Iterable<Category> allCategories() {
-        return categoryRepository.findAll();
-    }
+   @Override
+   public Iterable<Category> allCategories() {
+      return categoryRepository.findAll();
+   }
 
 }

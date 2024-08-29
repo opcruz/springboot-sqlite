@@ -4,7 +4,6 @@ import com.demo.sqlite.model.entity.Category;
 
 public interface LookupService {
 
-    Iterable<Category> allCategories();
+   Iterable<Category> allCategories();
 
 }
-

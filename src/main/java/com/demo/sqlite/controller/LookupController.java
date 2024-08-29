@@ -13,17 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/lookup")
 public class LookupController {
 
-    private final LookupService lookupService;
+   private final LookupService lookupService;
 
-    public LookupController(@Autowired LookupService lookupService) {
-        this.lookupService = lookupService;
-    }
+   public LookupController(@Autowired LookupService lookupService) {
+      this.lookupService = lookupService;
+   }
 
-    @GetMapping(path = "/categories")
-    @Operation(summary = "List categories")
-    public @ResponseBody Iterable<Category> getCategories() {
-        return lookupService.allCategories();
-    }
-
+   @GetMapping(path = "/categories")
+   @Operation(summary = "List categories")
+   public @ResponseBody Iterable<Category> getCategories() {
+      return lookupService.allCategories();
+   }
 
 }

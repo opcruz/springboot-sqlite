@@ -12,10 +12,10 @@ import java.util.Optional;
 
 public interface UserService {
 
-    Optional<LoginResponseDTO> login(LoginRequestDTO requestDTO, String role) throws ValidationError;
+   Optional<LoginResponseDTO> login(LoginRequestDTO requestDTO, String role) throws ValidationError;
 
-    Client signupClient(ClientSignupRequestDTO requestDTO) throws ValidationError;
+   Client signupClient(ClientSignupRequestDTO requestDTO) throws ValidationError;
 
-    Employee signupEmployee(EmployeeSignupRequestDTO requestDTO) throws ValidationError;
+   Employee signupEmployee(EmployeeSignupRequestDTO requestDTO) throws ValidationError;
 
 }

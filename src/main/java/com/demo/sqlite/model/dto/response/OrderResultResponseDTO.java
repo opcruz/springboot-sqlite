@@ -13,10 +13,10 @@ import java.util.List;
 @Builder
 public class OrderResultResponseDTO {
 
-    private Integer id;
-    private String paymentMethod;
-    private Double total;
-    private Timestamp createdAt;
-    private List<ProductOrderDTO> products;
+   private Integer id;
+   private String paymentMethod;
+   private Double total;
+   private Timestamp createdAt;
+   private List<ProductOrderDTO> products;
 
 }

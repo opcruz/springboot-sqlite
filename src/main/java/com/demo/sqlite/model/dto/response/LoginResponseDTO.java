@@ -8,9 +8,9 @@ import lombok.Data;
 @Data
 @Builder
 public class LoginResponseDTO {
-    private String email;
-    private String token;
-    @Builder.Default
-    private String type = "Bearer";
+   private String email;
+   private String token;
+   @Builder.Default
+   private String type = "Bearer";
 
 }

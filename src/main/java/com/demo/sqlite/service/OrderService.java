@@ -8,10 +8,8 @@ import java.util.Optional;
 
 public interface OrderService {
 
-    List<Order> findByClientId(int clientId);
+   List<Order> findByClientId(int clientId);
 
-    Optional<OrderResultResponseDTO> orderDetails(int clientId, int orderId);
-
+   Optional<OrderResultResponseDTO> orderDetails(int clientId, int orderId);
 
 }
-

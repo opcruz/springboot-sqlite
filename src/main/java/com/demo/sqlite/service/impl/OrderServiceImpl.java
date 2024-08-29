@@ -15,37 +15,31 @@ import java.util.Optional;
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    private final OrdersRepository orderRepository;
-    private final OrderDetailsRepository orderDetailsRepository;
+   private final OrdersRepository orderRepository;
+   private final OrderDetailsRepository orderDetailsRepository;
 
-    public OrderServiceImpl(@Autowired OrdersRepository orderRepository,
-                            @Autowired OrderDetailsRepository orderDetailsRepository) {
-        this.orderRepository = orderRepository;
-        this.orderDetailsRepository = orderDetailsRepository;
-    }
+   public OrderServiceImpl(@Autowired OrdersRepository orderRepository,
+         @Autowired OrderDetailsRepository orderDetailsRepository) {
+      this.orderRepository = orderRepository;
+      this.orderDetailsRepository = orderDetailsRepository;
+   }
 
-    @Override
-    public List<Order> findByClientId(int clientId) {
-        return orderRepository.findByClientId(clientId);
-    }
+   @Override
+   public List<Order> findByClientId(int clientId) {
+      return orderRepository.findByClientId(clientId);
+   }
 
-    @Override
-    public Optional<OrderResultResponseDTO> orderDetails(int clientId, int orderId) {
-        Optional<Order> order = orderRepository.findByIdAndClientId(clientId, orderId);
-        return order.map(value -> {
-            List<ProductOrderDTO> products = orderDetailsRepository.findByOrderId(value.getId());
-            double total =
-                    products.stream()
-                            .mapToDouble(product -> product.getPrice() * product.getQuantity())
-                            .sum();
-            return OrderResultResponseDTO.builder()
-                    .id(value.getId())
-                    .paymentMethod(value.getPaymentMethod())
-                    .total(total)
-                    .createdAt(value.getCreatedAt())
-                    .products(products)
-                    .build();
-        });
-    }
+   @Override
+   public Optional<OrderResultResponseDTO> orderDetails(int clientId, int orderId) {
+      Optional<Order> order = orderRepository.findByIdAndClientId(clientId, orderId);
+      return order.map(value -> {
+         List<ProductOrderDTO> products = orderDetailsRepository.findByOrderId(value.getId());
+         double total = products.stream()
+               .mapToDouble(product -> product.getPrice() * product.getQuantity()).sum();
+         return OrderResultResponseDTO.builder().id(value.getId())
+               .paymentMethod(value.getPaymentMethod()).total(total).createdAt(value.getCreatedAt())
+               .products(products).build();
+      });
+   }
 
 }
