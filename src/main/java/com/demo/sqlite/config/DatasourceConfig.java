@@ -1,9 +1,9 @@
 package com.demo.sqlite.config;
 
-import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
 
@@ -16,12 +16,9 @@ public class DatasourceConfig {
 
    @Bean
    public DataSource dataSource() {
-      HikariDataSource dataSource = new HikariDataSource();
+      DriverManagerDataSource dataSource = new DriverManagerDataSource();
       dataSource.setDriverClassName(driverClassName);
-      dataSource.setJdbcUrl(dataSourceUrl);
-      dataSource.setMaximumPoolSize(10);
-      dataSource.setConnectionTimeout(60000);
-      dataSource.setConnectionTestQuery("SELECT name FROM sqlite_master limit 0;");
+      dataSource.setUrl(dataSourceUrl);
       return dataSource;
    }
 
