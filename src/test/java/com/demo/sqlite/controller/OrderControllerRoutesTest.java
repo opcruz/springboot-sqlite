@@ -35,134 +35,129 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 public class OrderControllerRoutesTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+   @Autowired
+   private MockMvc mockMvc;
 
-    @MockBean
-    private OrderService orderService;
+   @MockBean
+   private OrderService orderService;
 
-    int clientUserId = 1;
+   int clientUserId = 1;
 
-    String email = "bLW7H@example.com";
+   String email = "bLW7H@example.com";
 
+   @Test
+   void listOrdersWithoutAuth() throws Exception {
+      // test
+      ResultActions response = mockMvc.perform(get("/orders"));
+      // verify
+      response.andExpect(status().isForbidden());
+      verifyNoInteractions(orderService);
+   }
 
-    @Test
-    void listOrdersWithoutAuth() throws Exception {
-        // test
-        ResultActions response = mockMvc.perform(get("/orders"));
-        // verify
-        response.andExpect(status().isForbidden());
-        verifyNoInteractions(orderService);
-    }
+   @Test
+   void listOrdersWithClientRoleAuth() throws Exception {
+      String token = JWTCoder.generateJWT(email, clientUserId,
+            Collections.singletonList(Roles.CLIENT.getRoleWithPrefix()));
 
+      // mock
+      Order newOrder = Order.builder()
+            .paymentMethod(PaymentMethods.VISA.getValue())
+            .clientId(clientUserId)
+            .createdAt(new Timestamp(System.currentTimeMillis()))
+            .build();
+      List<Order> expectedOrders = List.of(newOrder);
+      when(orderService.findByClientId(clientUserId)).thenReturn(expectedOrders);
 
-    @Test
-    void listOrdersWithClientRoleAuth() throws Exception {
-        String token = JWTCoder.generateJWT(email, Collections.singletonList(Roles.CLIENT.getRoleWithPrefix()), clientUserId);
+      // test
+      ResultActions response = mockMvc.perform(
+            get("/orders")
+                  .header(HttpHeaders.AUTHORIZATION, "Bearer " + token));
 
-        // mock
-        Order newOrder = Order.builder()
-                .paymentMethod(PaymentMethods.VISA.getValue())
-                .clientId(clientUserId)
-                .createdAt(new Timestamp(System.currentTimeMillis()))
-                .build();
-        List<Order> expectedOrders = List.of(newOrder);
-        when(orderService.findByClientId(clientUserId)).thenReturn(expectedOrders);
+      // verify
+      response.andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].id", is(newOrder.getId())))
+            .andExpect(jsonPath("$[0].clientId", is(newOrder.getClientId())))
+            .andExpect(jsonPath("$[0].paymentMethod", is(newOrder.getPaymentMethod())));
 
-        // test
-        ResultActions response = mockMvc.perform(
-                get("/orders")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-        );
+      // verify
+      verify(orderService, times(1)).findByClientId(clientUserId);
+   }
 
-        // verify
-        response.andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(newOrder.getId())))
-                .andExpect(jsonPath("$[0].clientId", is(newOrder.getClientId())))
-                .andExpect(jsonPath("$[0].paymentMethod", is(newOrder.getPaymentMethod())));
+   @Test
+   void listOrdersWithEmployeeRoleAuth() throws Exception {
+      String token = JWTCoder.generateJWT(email, clientUserId,
+            Collections.singletonList(Roles.EMPLOYEE.getRoleWithPrefix()));
 
-        // verify
-        verify(orderService, times(1)).findByClientId(clientUserId);
-    }
+      // test
+      ResultActions response = mockMvc.perform(
+            get("/orders")
+                  .header(HttpHeaders.AUTHORIZATION, "Bearer " + token));
+      // verify
+      response.andExpect(status().isForbidden());
+      verifyNoInteractions(orderService);
+   }
 
-    @Test
-    void listOrdersWithEmployeeRoleAuth() throws Exception {
-        String token = JWTCoder.generateJWT(email, Collections.singletonList(Roles.EMPLOYEE.getRoleWithPrefix()), clientUserId);
+   @Test
+   void orderDetailsWithoutAuth() throws Exception {
+      int orderId = 56;
+      // test
+      ResultActions response = mockMvc.perform(get("/orders/{orderId}/details", orderId));
+      // verify
+      response.andExpect(status().isForbidden());
+      verifyNoInteractions(orderService);
+   }
 
-        // test
-        ResultActions response = mockMvc.perform(
-                get("/orders")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-        );
-        // verify
-        response.andExpect(status().isForbidden());
-        verifyNoInteractions(orderService);
-    }
+   @Test
+   void orderDetailsWithClientRoleAuth() throws Exception {
+      int orderId = 56;
+      String token = JWTCoder.generateJWT(email, clientUserId,
+            Collections.singletonList(Roles.CLIENT.getRoleWithPrefix()));
 
-    @Test
-    void orderDetailsWithoutAuth() throws Exception {
-        int orderId = 56;
-        // test
-        ResultActions response = mockMvc.perform(get("/orders/{orderId}/details", orderId));
-        // verify
-        response.andExpect(status().isForbidden());
-        verifyNoInteractions(orderService);
-    }
+      List<ProductOrderDTO> productOrderDTOS = List.of(
+            new ProductOrderDTO(1, 1500.0, 1, "coca", 1, "active"));
 
-    @Test
-    void orderDetailsWithClientRoleAuth() throws Exception {
-        int orderId = 56;
-        String token = JWTCoder.generateJWT(email, Collections.singletonList(Roles.CLIENT.getRoleWithPrefix()), clientUserId);
+      OrderResultResponseDTO resultResponseDTO = OrderResultResponseDTO.builder()
+            .id(orderId)
+            .paymentMethod(PaymentMethods.PAYPAL.getValue())
+            .total(1500.0)
+            .createdAt(new Timestamp(System.currentTimeMillis()))
+            .products(productOrderDTOS)
+            .build();
+      // mock
+      when(orderService.orderDetails(clientUserId, orderId)).thenReturn(Optional.of(resultResponseDTO));
 
-        List<ProductOrderDTO> productOrderDTOS = List.of(
-                new ProductOrderDTO(1, 1500.0, 1, "coca", 1, "active")
-        );
+      // test
+      ResultActions response = mockMvc.perform(
+            get("/orders/{orderId}/details", orderId)
+                  .header(HttpHeaders.AUTHORIZATION, "Bearer " + token));
 
-        OrderResultResponseDTO resultResponseDTO =
-                OrderResultResponseDTO.builder()
-                        .id(orderId)
-                        .paymentMethod(PaymentMethods.PAYPAL.getValue())
-                        .total(1500.0)
-                        .createdAt(new Timestamp(System.currentTimeMillis()))
-                        .products(productOrderDTOS)
-                        .build();
-        // mock
-        when(orderService.orderDetails(clientUserId, orderId)).thenReturn(Optional.of(resultResponseDTO));
+      // verify
+      response.andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.products", hasSize(1)))
+            .andExpect(jsonPath("$.id", is(orderId)))
+            .andExpect(jsonPath("$.paymentMethod", is(resultResponseDTO.getPaymentMethod())))
+            .andExpect(jsonPath("$.total", is(resultResponseDTO.getTotal())));
 
-        // test
-        ResultActions response = mockMvc.perform(
-                get("/orders/{orderId}/details", orderId)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-        );
+      // verify
+      verify(orderService, times(1)).orderDetails(clientUserId, orderId);
+   }
 
-        // verify
-        response.andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.products", hasSize(1)))
-                .andExpect(jsonPath("$.id", is(orderId)))
-                .andExpect(jsonPath("$.paymentMethod", is(resultResponseDTO.getPaymentMethod())))
-                .andExpect(jsonPath("$.total", is(resultResponseDTO.getTotal())));
+   @Test
+   void orderDetailsWithEmployeeRoleAuth() throws Exception {
+      int orderId = 56;
+      String token = JWTCoder.generateJWT(email, clientUserId,
+            Collections.singletonList(Roles.EMPLOYEE.getRoleWithPrefix()));
+      // test
+      ResultActions response = mockMvc.perform(
+            get("/orders/{orderId}/details", orderId)
+                  .header(HttpHeaders.AUTHORIZATION, "Bearer " + token));
 
-        // verify
-        verify(orderService, times(1)).orderDetails(clientUserId, orderId);
-    }
-
-
-    @Test
-    void orderDetailsWithEmployeeRoleAuth() throws Exception {
-        int orderId = 56;
-        String token = JWTCoder.generateJWT(email, Collections.singletonList(Roles.EMPLOYEE.getRoleWithPrefix()), clientUserId);
-        // test
-        ResultActions response = mockMvc.perform(
-                get("/orders/{orderId}/details", orderId)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-        );
-
-        // verify
-        response.andExpect(status().isForbidden());
-        verifyNoInteractions(orderService);
-    }
+      // verify
+      response.andExpect(status().isForbidden());
+      verifyNoInteractions(orderService);
+   }
 
 }

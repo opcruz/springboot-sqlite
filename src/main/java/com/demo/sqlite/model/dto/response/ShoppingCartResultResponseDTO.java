@@ -10,8 +10,8 @@ import lombok.Data;
 @Builder
 public class ShoppingCartResultResponseDTO {
 
-    private Integer clientId;
-    private Double total;
-    private Iterable<ProductCartDTO> products;
+   private Integer clientId;
+   private Double total;
+   private Iterable<ProductCartDTO> products;
 
 }

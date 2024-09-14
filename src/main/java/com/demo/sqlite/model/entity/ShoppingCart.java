@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShoppingCart {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @Column(name = "product_code")
-    private int productCode;
-    private int quantity;
-    @Column(name = "client_id")
-    private int clientId;
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private int id;
+   @Column(name = "product_code")
+   private int productCode;
+   private int quantity;
+   @Column(name = "client_id")
+   private int clientId;
 }

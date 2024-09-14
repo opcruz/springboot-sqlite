@@ -1,27 +1,25 @@
 package com.demo.sqlite.utils;
 
 public enum PaymentMethods {
-    CASH("CASH"),
-    VISA("VISA"),
-    MASTERCARD("MASTERCARD"),
-    PAYPAL("PAYPAL");
-    private final String value;
+   CASH("CASH"), VISA("VISA"), MASTERCARD("MASTERCARD"), PAYPAL("PAYPAL");
 
-    PaymentMethods(String value) {
-        this.value = value;
-    }
+   private final String value;
 
-    public String getValue() {
-        return value;
-    }
+   PaymentMethods(String value) {
+      this.value = value;
+   }
 
-    public static boolean isValid(String value) {
-        for (PaymentMethods current : PaymentMethods.values()) {
-            if (current.getValue().equalsIgnoreCase(value)) {
-                return true;
-            }
-        }
-        return false;
-    }
+   public String getValue() {
+      return value;
+   }
+
+   public static boolean isValid(String value) {
+      for (PaymentMethods current : PaymentMethods.values()) {
+         if (current.getValue().equalsIgnoreCase(value)) {
+            return true;
+         }
+      }
+      return false;
+   }
 
 }

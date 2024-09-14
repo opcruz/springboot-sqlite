@@ -16,41 +16,41 @@ import java.sql.Statement;
 @TestConfiguration
 public class TestConfig {
 
-    @Value("${spring.datasource.driver-class-name}")
-    private String driverClassName;
-    @Value("${spring.datasource.url}")
-    private String dataSourceUrl;
+   @Value("${spring.datasource.driver-class-name}")
+   private String driverClassName;
+   @Value("${spring.datasource.url}")
+   private String dataSourceUrl;
 
-    @Bean
-    @Profile("test")
-    public DataSource dataSource() {
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setDriverClassName(driverClassName);
-        dataSource.setJdbcUrl(dataSourceUrl);
-        dataSource.setMaximumPoolSize(10);
-        dataSource.setConnectionTimeout(60000);
-        dataSource.setConnectionTestQuery("SELECT name FROM sqlite_master limit 0;");
-        initialize(dataSource);
-        return dataSource;
-    }
+   @Bean
+   @Profile("test")
+   public DataSource dataSource() {
+      HikariDataSource dataSource = new HikariDataSource();
+      dataSource.setDriverClassName(driverClassName);
+      dataSource.setJdbcUrl(dataSourceUrl);
+      dataSource.setMaximumPoolSize(10);
+      dataSource.setConnectionTimeout(60000);
+      dataSource.setConnectionTestQuery("SELECT name FROM sqlite_master limit 0;");
+      initialize(dataSource);
+      return dataSource;
+   }
 
-    public void initialize(DataSource dataSource) {
-        try (Connection connection = dataSource.getConnection()) {
-            Statement statement = connection.createStatement();
-            InputStream inputStream = this.getClass().getResourceAsStream("/tables-sqlite.sql");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            StringBuilder script = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                script.append(line).append("\n");
-            }
-            reader.close();
-            statement.executeUpdate(script.toString());
-            statement.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+   public void initialize(DataSource dataSource) {
+      try (Connection connection = dataSource.getConnection()) {
+         Statement statement = connection.createStatement();
+         InputStream inputStream = this.getClass().getResourceAsStream("/tables-sqlite.sql");
+         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+         String line;
+         StringBuilder script = new StringBuilder();
+         while ((line = reader.readLine()) != null) {
+            script.append(line).append("\n");
+         }
+         reader.close();
+         statement.executeUpdate(script.toString());
+         statement.close();
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
 
-    }
+   }
 
 }

@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SQLiteDemoApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SQLiteDemoApplication.class, args);
-    }
+   public static void main(String[] args) {
+      SpringApplication.run(SQLiteDemoApplication.class, args);
+   }
 
 }

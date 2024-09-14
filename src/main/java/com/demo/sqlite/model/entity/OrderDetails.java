@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDetails {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @Column(name = "order_id")
-    private int orderId;
-    @Column(name = "product_code")
-    private int productCode;
-    private int quantity;
-    private double price;
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private int id;
+   @Column(name = "order_id")
+   private int orderId;
+   @Column(name = "product_code")
+   private int productCode;
+   private int quantity;
+   private double price;
 }
